@@ -72,7 +72,7 @@ def compare(args):
 
     print_header('file checker')
     filelists = {}
-    all_files = args.first + args.other
+    all_files = [args.first] + args.other 
     
     for filepath in all_files:
         result = []
@@ -110,9 +110,8 @@ def compare(args):
 
     for n, filelist in enumerate(filelists):
         unique = set(filelists[filelist]).difference(common)
-        print(" • File {0}: {1} values are unique to {2}".format(n+1, 
-                                                                 len(unique), 
-                                                                 filelist)
+        print(" • File {0}: {1} values are unique to {2}".format(
+                                                    n+1, len(unique), filelist)
              )
         if unique is not None:
             sorted_files = sorted(unique)
@@ -157,8 +156,13 @@ def bytecount(args):
 def inventory(args):
     
     print_header('inventory')
-    DIR = args.directory
-    OUTFILE = os.path.abspath(args.outfile)
+    
+    if args.outfile is not None:
+        OUTFILE = os.path.abspath(args.outfile)
+    else:
+        OUTFILE = None
+    
+    SEARCHROOT = os.path.abspath(args.path)
     FIELDNAMES = [  'Directory', 
                     'Filename', 
                     'Extension', 
@@ -168,52 +172,63 @@ def inventory(args):
                     'MD5'
                     ]
 
-    all_files = survey_files(DIR)
-    print("Checking path: {0}".format(DIR))
-    print("Writing inventory to: {0}".format(OUTFILE))
+    all_files = survey_files(SEARCHROOT)
+    print("Checking path: {0}".format(SEARCHROOT))
+    
+    if OUTFILE:
+        print("Writing inventory to file {0}".format(OUTFILE))
 
-    # check whether output file exists, and if so read it and resume job
-    try:
-        complete_list = resume_job(OUTFILE)
-        already_done = [item for item in complete_list]
-        files_to_check = set(all_files).difference(already_done)
+        # check whether output file exists, and if so read it and resume job
+        try:
+            complete_list = resume_job(OUTFILE)
+            already_done = [item for item in complete_list]
+            files_to_check = set(all_files).difference(already_done)
         
-    except FileNotFoundError:
+        except FileNotFoundError:
+            complete_list = []
+            files_to_check = all_files
+            
+        fh = open(OUTFILE, 'w+')
+
+    else:
+        print("Writing inventory to stdout")
         complete_list = []
         files_to_check = all_files
-
-    # set up output headers and counter
-    with open(OUTFILE, 'w+') as outfile:
-        writer = csv.DictWriter(outfile, fieldnames=FIELDNAMES)
-        writer.writeheader()
-        count = 0
-        total = len(all_files)
+        fh = sys.stdout
+    
+    writer = csv.DictWriter(fh, fieldnames=FIELDNAMES)
+    writer.writeheader()
+    count = 0
+    total = len(all_files)
         
-        # write out already completed items
-        for item in complete_list:
-            writer.writerow(complete_list[item])
-            count += 1
+    # write out already completed items
+    for item in complete_list:
+        writer.writerow(complete_list[item])
+        count += 1
         
-        # check each remaining file and generate metadata
-        for f in files_to_check:
-            tstamp = int(os.path.getmtime(f))
-            metadata = {'Directory': os.path.dirname(os.path.abspath(f)),
-                        'Filename': os.path.basename(f),
-                        'MTime': tstamp,
-                        'Moddate': dt.fromtimestamp(tstamp).strftime(
-                            '%Y-%m-%dT%H:%M:%S'),
-                        'Extension': os.path.splitext(f)[1].lstrip('.').upper(),
-                        'Bytes': os.path.getsize(f),
-                        'MD5': md5sum(f)
-                        }
-            writer.writerow(metadata)
+    # check each remaining file and generate metadata
+    for f in files_to_check:
+        tstamp = int(os.path.getmtime(f))
+        metadata = {'Directory': os.path.dirname(os.path.abspath(f)),
+                    'Filename': os.path.basename(f),
+                    'MTime': tstamp,
+                    'Moddate': dt.fromtimestamp(tstamp).strftime(
+                        '%Y-%m-%dT%H:%M:%S'),
+                    'Extension': os.path.splitext(f)[1].lstrip('.').upper(),
+                    'Bytes': os.path.getsize(f),
+                    'MD5': md5sum(f)
+                    }
+        writer.writerow(metadata)
             
-            # display running counter
-            count += 1
-            print("Files checked: {0}/{1}".format(count, total), end='\r')
+        # display running counter
+        count += 1
+        print("Files checked: {0}/{1}".format(count, total), end='\r')
 
-        # clear counter
-        print('')
+    if fh is not sys.stdout:
+        fh.close()
+    
+    # clear counter
+    print('')
     
     # report successful completion
     print('Inventory complete!')
@@ -249,7 +264,7 @@ def main():
     bc_parser = subparsers.add_parser(
                             'bytecount', aliases=['bc'], 
                             help='Count files and sizes in bytes',
-                            description='Help for the bytecount subcommand'
+                            description='Count files by type and sum bytes.'
                             )
                             
     bc_parser.add_argument( 'path',
@@ -269,7 +284,7 @@ def main():
     inv_parser = subparsers.add_parser(
                             'inventory', aliases=['inv'],
                             help='Create inventory of files with checksums',
-                            description='help for the inventory subcommand'
+                            description='Create dirlisting with file metadata.'
                             )
                             
     inv_parser.add_argument('path',
@@ -280,7 +295,6 @@ def main():
     inv_parser.add_argument('-o', '--outfile',
                             help='path to an output file (otherwise stdout)',
                             action='store',
-                            required=True
                             )
 
     inv_parser.add_argument('-r', '--recursive',
@@ -295,7 +309,7 @@ def main():
     comp_parser = subparsers.add_parser(
                             'compare', aliases=['comp'],
                             help='Compare two or more inventories',
-                            description='Help for the compare subcommand'
+                            description='Compare contents of file inventories.'
                             )
                             
     comp_parser.add_argument('first', 
@@ -311,8 +325,7 @@ def main():
 
     # parse the args and call the default sub-command function
     args = parser.parse_args()
-    print(args)
-#    args.func(args)
+    args.func(args)
 
 
 if __name__ == "__main__":
