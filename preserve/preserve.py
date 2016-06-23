@@ -6,6 +6,7 @@ import csv
 from datetime import datetime as dt
 import hashlib
 import os
+import re
 import sys
 import time
 
@@ -87,16 +88,22 @@ def compare(args):
             
             if rawlines[0] == "IBM Tivoli Storage Manager":
                 print("Parsing Tivoli output file...")
-                p = re.compile('\\\\\\\\.+\\\\(.+) \[Sent\]')
-                for l in rawlines:
-                    if l.startswith('Normal File-->'):
-                        m = p.search(l)
-                    if m:
-                        result.append(m.group(1))
+                p = re.compile(r"([^\\]+) \[Sent\]")
+                for line in rawlines:
+                    if 'Normal File-->' in line:
+                        m = p.search(line)
+                        if m:
+                            result.append(m.group(1))
 
             elif "Key" in rawlines[0] or "Filename" in rawlines[0]:
-                print("Parsing File Analyzer file...")
-                reader = csv.DictReader(rawlines, delimiter=",")
+                print("Parsing DPI inventory file => ", end='')
+                if '\t' in rawlines[0]:
+                    print('tab delimited...')
+                    delimiter = '\t'
+                else:
+                    print('comma delimited...')
+                    delimiter = ','
+                reader = csv.DictReader(rawlines, delimiter=delimiter)
                 filenamecol = "Key" if "Key" in rawlines[0] else "Filename"
                 for l in reader:
                     result.append(l[filenamecol])
