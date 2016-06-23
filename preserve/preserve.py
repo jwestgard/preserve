@@ -72,6 +72,10 @@ def resume_job(path):
 
 def compare(args):
 
+# TODO: if checksums are available, verify at the checksum level
+# otherwise verify presence of all files only
+# add option to verify based on dates?
+
     print_header('file checker')
     filelists = {}
     all_files = [args.first] + args.other 
