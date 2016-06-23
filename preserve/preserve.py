@@ -264,9 +264,11 @@ def main():
                             title='subcommands', 
                             description='valid subcommands', 
                             help='-h additional help', 
-                            metavar='{bc,inv,comp}'
+                            metavar='{bc,inv,comp}',
+                            dest='cmd'
                             )
-    
+                            
+    subparsers.required = True
     
     # parser for the "bytecount" sub-command
     bc_parser = subparsers.add_parser(
@@ -277,7 +279,7 @@ def main():
                             
     bc_parser.add_argument( 'path',
                             help='path to search',
-                            action='store',
+                            action='store'
                             )
     
     bc_parser.add_argument( '-r', '--recursive', 
@@ -297,12 +299,12 @@ def main():
                             
     inv_parser.add_argument('path',
                             help='path to search',
-                            action='store',
+                            action='store'
                             )
     
     inv_parser.add_argument('-o', '--outfile',
-                            help='path to an output file (otherwise stdout)',
-                            action='store',
+                            help='path to an output file',
+                            action='store'
                             )
 
     inv_parser.add_argument('-r', '--recursive',
@@ -325,7 +327,7 @@ def main():
                             )
                             
     comp_parser.add_argument('other', nargs='+',
-                            help='one or more files to compare',
+                            help='one or more files to compare'
                             )
                             
     comp_parser.set_defaults(func=compare)
