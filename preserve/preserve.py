@@ -10,12 +10,10 @@ import sys
 import time
 
 
-'''
-====================
-| HELPER FUNCTIONS |
-====================
+#============================================================================
+# HELPER FUNCTIONS 
+#============================================================================
 
-'''
 def print_header(subcommand):
     '''Common output formatting.'''
     title = 'preserve.py {0}'.format(subcommand)
@@ -37,9 +35,13 @@ def md5sum(filepath):
         return m.hexdigest()
 
 
-def survey_files(path):
-    '''Return a list of files in a directory tree, 
-       pruning out the hidden files (i.e. those that begin with dot).'''
+def list_files(path):
+    
+    # TODO: When a file is specified instead of a directory, read the file contents instead
+    # if the file is not a text file, generate an error
+    
+    '''Return a list of files in a directory tree, pruning out the 
+       hidden files & dirs (i.e. those that begin with dot).'''
     result = []
     for root, dirs, files in os.walk(path):
         # prune directories beginning with dot
@@ -127,7 +129,7 @@ def compare(args):
 def bytecount(args):
     
     print_header('bytecount')
-    all_files = survey_files(args.path)
+    all_files = list_files(args.path)
     extensions = {}
     totalbytes = 0
     
@@ -172,7 +174,7 @@ def inventory(args):
                     'MD5'
                     ]
 
-    all_files = survey_files(SEARCHROOT)
+    all_files = list_files(SEARCHROOT)
     print("Checking path: {0}".format(SEARCHROOT))
     
     if OUTFILE:
@@ -235,15 +237,10 @@ def inventory(args):
     print('')
 
 
-'''
-=============
-| MAIN LOOP |
-=============
-
-This is the main loop, parsing args and setting the default function based
-on the sub-command.
-
-'''
+#============================================================================
+# MAIN LOOP
+#============================================================================
+'''Parse args and set the chosen sub-command as the default function.'''
 
 def main():
 
