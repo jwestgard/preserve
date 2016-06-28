@@ -53,7 +53,7 @@ def list_files(path):
     return result
 
 
-def resume_job(path):
+def read_inventory(path):
     '''Given a path to a directory listing file, return a dictionary of 
        the file metadata read from that file, where the keys are the file paths 
        and the values are the metadata as a dictionary.'''
@@ -193,7 +193,7 @@ def inventory(args):
 
         # check whether output file exists, and if so read it and resume job
         try:
-            complete_list = resume_job(OUTFILE)
+            complete_list = read_inventory(OUTFILE)
             already_done = [item for item in complete_list]
             files_to_check = set(all_files).difference(already_done)
         
@@ -246,6 +246,39 @@ def inventory(args):
     # report successful completion
     print('Inventory complete!')
     print('')
+    
+        
+#=== SUBCOMMAND =============================================================
+#         NAME: verify
+#  DESCRIPTION: verify two sets of files (from original files or inventory) 
+#               by comparing their checksums, size, timestamp
+#============================================================================
+
+def verify(args):
+
+    # for first, second args
+    # check if the path leads to a file
+        # if so, read the file into a list
+        # if not, check whether it's a directory path
+        # if so, run inventory on the files in that path
+    # compare the two lists
+        # make note of items that are missing in one or the other
+        # for items that are present in both, compare checksums
+        # also compare size mode date, etc.
+        # report discrepancies and summary of checks performed
+
+    inventories = {}
+    all_paths = [args.first, args.second]
+    for p in all_paths:
+        if os.path.isfile(p):
+            print("{0} is a file!".format(p))
+            inventories[p] = read_inventory(p)
+        elif os.path.isdir(p):
+            print("{0} is a directory!".format(p))
+            inventories[p] = list_files(p)
+        else:
+            print("{0} could not be found!".format(p))
+    print(inventories)
 
 
 #============================================================================
@@ -264,7 +297,7 @@ def main():
                             title='subcommands', 
                             description='valid subcommands', 
                             help='-h additional help', 
-                            metavar='{bc,inv,comp}',
+                            metavar='{bc,inv,comp,ver}',
                             dest='cmd'
                             )
                             
@@ -331,6 +364,24 @@ def main():
                             )
                             
     comp_parser.set_defaults(func=compare)
+
+
+    # parser for the "verify" sub-command
+    comp_parser = subparsers.add_parser(
+                            'verify', aliases=['ver'],
+                            help='Verify checksums for two sets of files',
+                            description='Verify checksums.'
+                            )
+                            
+    comp_parser.add_argument('first', 
+                            help='first file or path'
+                            )
+                            
+    comp_parser.add_argument('second', 
+                            help='second file or path'
+                            )
+                            
+    comp_parser.set_defaults(func=verify)
 
 
     # parse the args and call the default sub-command function
