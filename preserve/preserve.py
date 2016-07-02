@@ -16,7 +16,7 @@ import time
 #============================================================================
 
 def print_header(subcommand):
-    '''Common output formatting.'''
+    '''Common header formatting for each subcommand.'''
     title = 'preserve.py {0}'.format(subcommand)
     bar = '=' * len(title)
     print('')
@@ -26,6 +26,8 @@ def print_header(subcommand):
 
 def md5sum(filepath):
     '''For a given file path, return the md5 checksum for that file.'''
+    # TODO: if a path to a directory is passed instead of a file path
+    # gracefully handle the error.
     with open(filepath, 'rb') as f:
         m = hashlib.md5()
         while True:
@@ -36,15 +38,14 @@ def md5sum(filepath):
         return m.hexdigest()
 
 
-def list_files(path):
-    
-    # TODO: When a file is specified instead of a directory, read the file contents instead
-    # if the file is not a text file, generate an error
-    
+def list_files(dir_path):
     '''Return a list of files in a directory tree, pruning out the 
        hidden files & dirs (i.e. those that begin with dot).'''
+    # TODO: When a file is specified instead of a directory, 
+    # read the file contents instead if the file is not a text file, abort and
+    # provide a useful error message
     result = []
-    for root, dirs, files in os.walk(path):
+    for root, dirs, files in os.walk(dir_path):
         # prune directories beginning with dot
         dirs[:] = [d for d in dirs if not d.startswith('.')]
         # prune files beginning with dot
@@ -53,31 +54,52 @@ def list_files(path):
     return result
 
 
-def read_inventory(path):
-    '''Given a path to a directory listing file, return a dictionary of 
-       the file metadata read from that file, where the keys are the file paths 
-       and the values are the metadata as a dictionary.'''
-    with open(path, 'r') as f:
-        reader = csv.DictReader(f)
-        result = {}
-        for row in reader:
-            filepath = os.path.join(row['Directory'], row['Filename'])
-            result[filepath] = row
-    return result
+def read_file(file_path):
+    '''Return list of dictionaries representing contents of an inventory 
+        file.'''
+    with open(file_path, 'r') as f:
+        return [row for row in csv.DictReader(f)]
+
+
+def get_metadata(file_path):
+    '''Given a path to a file, return a dictionary representing the 
+       metadata for that file.'''
+    tstamp = int(os.path.getmtime(file_path))
+    metadata = {'Directory': os.path.dirname(os.path.abspath(file_path)),
+                'Filename': os.path.basename(file_path),
+                'MTime': tstamp,
+                'Moddate': dt.fromtimestamp(tstamp).strftime(
+                    '%Y-%m-%dT%H:%M:%S'),
+                'Extension': os.path.splitext(file_path)[1].lstrip('.').upper(),
+                'Bytes': os.path.getsize(file_path),
+                'MD5': md5sum(file_path)
+                }
+    return metadata
+
+
+def get_inventory(path):
+    '''Given a path to a file or directory, return list of inventory metadata
+       based on reading the inventory, or scanning the directory's files.'''
+    if os.path.isfile(path):
+        print("  > {0} is a file.".format(path))
+        return read_file(path)
+    elif os.path.isdir(path):
+        print("  > {0} is a directory.".format(path))
+        return [get_metadata(f) for f in list_files(path)]
+    else:
+        print("  > {0} could not be found!".format(path))
+        return False
 
 
 #=== SUBCOMMAND =============================================================
 #         NAME: compare
-#  DESCRIPTION: 
+#  DESCRIPTION: check for the presence of files in inventories of various
+#               formats (TSM backup, file analyzer, this script)
 #============================================================================
 
 def compare(args):
 
-# TODO: if checksums are available, verify at the checksum level
-# otherwise verify presence of all files only
-# add option to verify based on dates?
-
-    print_header('file checker')
+    print_header('compare')
     filelists = {}
     all_files = [args.first] + args.other 
     
@@ -96,12 +118,12 @@ def compare(args):
                             result.append(m.group(1))
 
             elif "Key" in rawlines[0] or "Filename" in rawlines[0]:
-                print("Parsing DPI inventory file => ", end='')
+                print("Parsing DPI inventory file... ", end='')
                 if '\t' in rawlines[0]:
-                    print('tab delimited...')
+                    print('tab delimited:')
                     delimiter = '\t'
                 else:
-                    print('comma delimited...')
+                    print('comma delimited:')
                     delimiter = ','
                 reader = csv.DictReader(rawlines, delimiter=delimiter)
                 filenamecol = "Key" if "Key" in rawlines[0] else "Filename"
@@ -113,31 +135,34 @@ def compare(args):
             
             if result:
                 filelists[filepath] = result
-                print(" >", filepath, ":", len(result), "files")
+                print(" => {0}: {1} files".format(filepath, len(result)))
             else:
-                print(" > File", filepath, "has not been parsed.")
+                print(" => File {0} has not been parsed.".format(filepath))
     
     all_lists = [set(filelists[filelist]) for filelist in filelists]
     common = set.intersection(*all_lists)
-    print("{} values are common to all the supplied files.".format(len(common)))
+    print("{} values are common to all the supplied files:".format(len(common)))
 
     for n, filelist in enumerate(filelists):
         unique = set(filelists[filelist]).difference(common)
-        print(" • File {0}: {1} values are unique to {2}".format(
-                                                    n+1, len(unique), filelist)
-             )
+        print(" => File {0}: {1} values are unique to {2}".format(
+                n+1, len(unique), filelist)
+            )
         if unique is not None:
             sorted_files = sorted(unique)
             for fnum, fname in enumerate(sorted_files):
-                print("\t({0}) {1}".format(fnum+1, fname))
+                print("     ({0}) {1}".format(fnum+1, fname))
+    print('')
 
 
 #=== SUBCOMMAND =============================================================
 #         NAME: bytecount
-#  DESCRIPTION: 
+#  DESCRIPTION: count files by extention and sum their sizes
 #============================================================================
 
 def bytecount(args):
+    
+    # work for file as well as directory
     
     print_header('bytecount')
     all_files = list_files(args.path)
@@ -168,117 +193,129 @@ def bytecount(args):
 
 def inventory(args):
     
-    print_header('inventory')
-    
     if args.outfile is not None:
         OUTFILE = os.path.abspath(args.outfile)
     else:
         OUTFILE = None
-    
     SEARCHROOT = os.path.abspath(args.path)
-    FIELDNAMES = [  'Directory', 
-                    'Filename', 
-                    'Extension', 
-                    'Bytes', 
-                    'MTime', 
-                    'Moddate',
-                    'MD5'
-                    ]
-
+    FIELDNAMES = ['Directory', 'Filename', 'Extension', 'Bytes', 'MTime', 
+                  'Moddate', 'MD5']
+    
+    # Get a list of all files in the search path.
     all_files = list_files(SEARCHROOT)
-    print("Checking path: {0}".format(SEARCHROOT))
+    total = len(all_files)
+    count = 0
+    files_to_check = all_files  # will be overriden if outfile specified
+    files_done = []             # will be overriden if outfile specified
+    existing_entries = []       # will be overriden if outfile specified
+
+    # TODO: better handling of output file options:
+    #   - output file specified?
+    #       - YES: check for resume flag?
+    #           - YES: check if outfile exists and can be read
+    #               - YES: resume and write to file
+    #               - NO: raise exception file cannot be read
+    #           - NO: check if outfile exists
+    #               - YES: raise exception
+    #               - NO: write to outfile
+    #       - NO: write to stdout
     
     if OUTFILE:
-        print("Writing inventory to file {0}".format(OUTFILE))
-
-        # check whether output file exists, and if so read it and resume job
-        try:
-            complete_list = read_inventory(OUTFILE)
-            already_done = [item for item in complete_list]
-            files_to_check = set(all_files).difference(already_done)
-        
-        except FileNotFoundError:
-            complete_list = []
-            files_to_check = all_files
-            
+        print_header('inventory')
+        print("Checking path: {0}".format(SEARCHROOT))
+        print("Writing to file: {0}".format(OUTFILE))
+        # check whether output file exists; if so, read it and resume the job.
+        if os.path.isfile(OUTFILE):
+            # TODO: add exceptions to handle outfile that is malformed
+            existing_entries = read_inventory_file(OUTFILE)
+            files_done = [os.path.join(f['Directory'], f['Filename']) \
+                for f in existing_entries]
+            # TODO: add exceptions for presence of files in inventory that
+            # are no longer on disk
+            files_to_check = set(all_files).difference(files_done)
+            # TODO: add handling for output file that is already complete
+        else:   
+            # If the output file doesn't exist, use defaults.
+            print("Inaccessible output file, inventorying everything...")
         fh = open(OUTFILE, 'w+')
-
     else:
-        print("Writing inventory to stdout")
-        complete_list = []
-        files_to_check = all_files
+        # if no output file has been specified, write to stdout
         fh = sys.stdout
     
+
     writer = csv.DictWriter(fh, fieldnames=FIELDNAMES)
     writer.writeheader()
-    count = 0
-    total = len(all_files)
-        
-    # write out already completed items
-    for item in complete_list:
-        writer.writerow(complete_list[item])
-        count += 1
-        
-    # check each remaining file and generate metadata
-    for f in files_to_check:
-        tstamp = int(os.path.getmtime(f))
-        metadata = {'Directory': os.path.dirname(os.path.abspath(f)),
-                    'Filename': os.path.basename(f),
-                    'MTime': tstamp,
-                    'Moddate': dt.fromtimestamp(tstamp).strftime(
-                        '%Y-%m-%dT%H:%M:%S'),
-                    'Extension': os.path.splitext(f)[1].lstrip('.').upper(),
-                    'Bytes': os.path.getsize(f),
-                    'MD5': md5sum(f)
-                    }
-        writer.writerow(metadata)
-            
-        # display running counter
-        count += 1
-        print("Files checked: {0}/{1}".format(count, total), end='\r')
+    # Write the existing portion of the inventory to the output file
+    if OUTFILE:
+        for entry in existing_entries:
+            writer.writerow(entry)
+            count += 1
 
-    if fh is not sys.stdout:
+    # check each (remaining) file and generate metadata
+    for f in files_to_check:
+        metadata = get_metadata(f)
+        writer.writerow(metadata)
+        count += 1
+            
+        if OUTFILE:
+            # display running counter
+            print("Files checked: {0}/{1}".format(count, total), end='\r')
+
+    if OUTFILE:
         fh.close()
-    
-    # clear counter
-    print('')
-    
-    # report successful completion
-    print('Inventory complete!')
-    print('')
-    
-        
+        # clear counter
+        print('')
+        # report successful completion
+        print('Inventory complete!')
+        print('')
+
+
 #=== SUBCOMMAND =============================================================
 #         NAME: verify
-#  DESCRIPTION: verify two sets of files (from original files or inventory) 
+#  DESCRIPTION: verify two sets of files (on disk or as recorded in CSV file) 
 #               by comparing their checksums, size, timestamp
 #============================================================================
 
 def verify(args):
-
-    # for first, second args
-    # check if the path leads to a file
-        # if so, read the file into a list
-        # if not, check whether it's a directory path
-        # if so, run inventory on the files in that path
-    # compare the two lists
-        # make note of items that are missing in one or the other
-        # for items that are present in both, compare checksums
-        # also compare size mode date, etc.
-        # report discrepancies and summary of checks performed
-
-    inventories = {}
-    all_paths = [args.first, args.second]
-    for p in all_paths:
-        if os.path.isfile(p):
-            print("{0} is a file!".format(p))
-            inventories[p] = read_inventory(p)
-        elif os.path.isdir(p):
-            print("{0} is a directory!".format(p))
-            inventories[p] = list_files(p)
+    print_header('verify')
+    
+    print("1. Loading data from 1st path...")
+    dict_a = {f['Filename']: f['MD5'] for f in get_inventory(args.first)}
+    print("2. Loading data from 2nd path...")
+    dict_b = {f['Filename']: f['MD5'] for f in get_inventory(args.second)}
+    all_keys = set().union(dict_a.keys(), dict_b.keys())
+    not_a = []
+    not_b = []
+    changed = {}
+    verified = 0
+    total = len(all_keys)
+    
+    # iterate over union of both dicts
+    for n,k in enumerate(all_keys):
+        if not k in dict_a:
+            not_a.append(k)
+        elif not k in dict_b:
+            not_b.append(k)
+        elif not dict_a[k] == dict_b[k]:
+            changed[k] = (dict_a[k], dict_b[k])
         else:
-            print("{0} could not be found!".format(p))
-    print(inventories)
+            verified += 1
+        print("Checked {0}/{1} files.".format(n+1, total), end='\r')
+
+    # clear counter
+    print('')
+    
+    # report results
+    if all([not_a is None, not_b is None, changed is None]):
+        print("Success! No differences found.")
+    else:
+        print("Possible problems were found.")
+    print("{0} files are in 1 but not 2.".format(len(not_b)))
+    print("{0} files are in 2 but not 1.".format(len(not_a)))
+    print("{0} files show a checksum mismatch.".format(len(changed)))
+    print("Verified {0}/{1} files.".format(verified, total))
+
+    print('')
 
 
 #============================================================================
