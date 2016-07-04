@@ -20,4 +20,4 @@ Run the various subcommands as follows:
 
 Or, for a full list of options:
 
-  preserve -h
+    preserve -h
