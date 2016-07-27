@@ -380,7 +380,13 @@ def main():
                             metavar='{bc,inv,comp,ver}',
                             dest='cmd'
                             )
-                            
+    
+    parser.add_argument('-v', '--version', 
+                        action='version', 
+                        help='Print version number and exit',
+                        version='%(prog)s 0.1'
+                        )
+    
     subparsers.required = True
     
     # parser for the "bytecount" sub-command
