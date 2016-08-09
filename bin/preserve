@@ -39,6 +39,23 @@ def md5sum(filepath):
     return m.hexdigest()
 
 
+def human_readable(bytes):
+    '''Return human-readable version of a given number of bytes plus the units,
+       rounding to two decimal places for scales in KiB and larger.'''
+    orders_mag = [
+        'bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'
+        ]
+    for n in range(len(orders_mag)):
+        scaled = bytes / (2**(10 * n))
+        if scaled >= 0 and scaled < 1024:
+            if orders_mag[n] == 'bytes':
+                scaled = int(scaled)
+            else:
+                scaled = round(scaled, 2)
+            return(scaled, orders_mag[n])
+    return False
+    
+
 def list_files(dir_path):
     '''Return a list of files in a directory tree, pruning out the 
        hidden files & dirs (i.e. those that begin with dot).'''
@@ -56,7 +73,9 @@ def read_file(file_path):
     '''Return list of dictionaries representing contents of an inventory 
         file.'''
     with open(file_path, 'r') as f:
-        result = [row for row in csv.DictReader(f)]
+        dialect = csv.Sniffer().sniff(f.read(2048))
+        f.seek(0)
+        result = [row for row in csv.DictReader(f, dialect=dialect)]
     return result
 
 
@@ -178,18 +197,43 @@ def bytecount(args):
     extensions = {}
     totalbytes = 0
     
+    # Handle different keys in inventory files
+    if {'Bytes','Extension'}.issubset(all_files[0].keys()):
+        inv_type = 'preserve'
+    elif {'Size','Type'}.issubset(all_files[0].keys()):
+        inv_type = 'File Analyzer'
+    else:
+        print("ERROR: Cannot interpret this inventory file.\n")
+        sys.exit()
+    
+    # Iterate over the rows of the inventory
     for f in all_files:
-        totalbytes += int(f['Bytes'])
-        ext = f['Extension']
+        if inv_type == 'preserve':
+            totalbytes += int(f['Bytes'])
+            ext = f['Extension']
+        elif inv_type == 'File Analyzer':
+            totalbytes += int(f['Size'])
+            ext = f['Type']
+
         if ext in extensions:
             extensions[ext] += 1
         else:
             extensions[ext] = 1
-            
+    
+    # Convert bytes to human-readable if requested
+    if args.human:
+        count_num, count_units = human_readable(totalbytes)            
+    else:
+        count_num, count_units = (str(totalbytes), "bytes")
+        
     exts_summary = [
         "{0}:{1}".format(type, num) for (type, num) in extensions.items()
         ]
-    print('{0} bytes for {1} files.'.format(totalbytes, len(all_files)))
+        
+    # Report the results    
+    print('{0} {1} for {2} files.'.format(
+        count_num, count_units, len(all_files)
+        ))
     print('({0})'.format(", ".join(exts_summary)))
     
     print('')
@@ -405,6 +449,11 @@ def main():
                             help='Recurse through subdirectories',
                             action='store_true'
                             )
+    
+    bc_parser.add_argument( '-H', '--human', 
+                            help='Human-readable size',
+                            action='store_true'
+                            )
                             
     bc_parser.set_defaults(func=bytecount)
     
@@ -453,21 +502,21 @@ def main():
 
 
     # parser for the "verify" sub-command
-    comp_parser = subparsers.add_parser(
+    ver_parser = subparsers.add_parser(
                             'verify', aliases=['ver'],
                             help='Verify checksums for two sets of files',
                             description='Verify checksums.'
                             )
                             
-    comp_parser.add_argument('first', 
+    ver_parser.add_argument('first', 
                             help='first file or path'
                             )
                             
-    comp_parser.add_argument('second', 
+    ver_parser.add_argument('second', 
                             help='second file or path'
                             )
                             
-    comp_parser.set_defaults(func=verify)
+    ver_parser.set_defaults(func=verify)
 
 
     # parse the args and call the default sub-command function
