@@ -199,22 +199,19 @@ def bytecount(args):
     
     # Handle different keys in inventory files
     if {'Bytes','Extension'}.issubset(all_files[0].keys()):
-        inv_type = 'preserve'
+        byte_key = 'Bytes'
+        ext_key = 'Extension'
     elif {'Size','Type'}.issubset(all_files[0].keys()):
-        inv_type = 'File Analyzer'
+        byte_key = 'Size'
+        ext_key = 'Type'
     else:
         print("ERROR: Cannot interpret this inventory file.\n")
         sys.exit()
     
     # Iterate over the rows of the inventory
     for f in all_files:
-        if inv_type == 'preserve':
-            totalbytes += int(f['Bytes'])
-            ext = f['Extension']
-        elif inv_type == 'File Analyzer':
-            totalbytes += int(f['Size'])
-            ext = f['Type']
-
+        totalbytes += int(f[byte_key])
+        ext = f[ext_key]
         if ext in extensions:
             extensions[ext] += 1
         else:
