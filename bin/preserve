@@ -71,7 +71,7 @@ def list_files(dir_path):
 
 def read_file(file_path):
     '''Return list of dictionaries representing contents of an inventory 
-        file.'''
+       file.'''
     with open(file_path, 'r') as f:
         dialect = csv.Sniffer().sniff(f.read(2048))
         f.seek(0)
@@ -217,22 +217,22 @@ def bytecount(args):
         else:
             extensions[ext] = 1
     
-    # Convert bytes to human-readable if requested
-    if args.human:
-        count_num, count_units = human_readable(totalbytes)            
-    else:
-        count_num, count_units = (str(totalbytes), "bytes")
-        
     exts_summary = [
         "{0}:{1}".format(type, num) for (type, num) in extensions.items()
         ]
         
-    # Report the results    
-    print('{0} {1} for {2} files.'.format(
-        count_num, count_units, len(all_files)
-        ))
+    # Convert bytes to human-readable if requested and report results
+    if args.human and totalbytes >= 1024:
+        count_num, count_units = human_readable(totalbytes)
+        print('{0} bytes ({1} {2}) for {3} files.'.format(
+            str(totalbytes), count_num, count_units, len(all_files)
+            ))       
+    else:
+        print('{0} bytes for {1} files.'.format(
+            str(totalbytes), len(all_files)
+            ))
+   
     print('({0})'.format(", ".join(exts_summary)))
-    
     print('')
 
 
