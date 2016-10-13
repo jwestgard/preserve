@@ -398,6 +398,8 @@ def verify(args):
     print("  => {0} files are in 1 but not 2.".format(len(not_b)))
     print("  => {0} files are in 2 but not 1.".format(len(not_a)))
     print("  => {0} files show a checksum mismatch.".format(len(changed)))
+    for k,v in changed.items():
+        print("     - {0}: {1} != {2}".format(k, v[0], v[1]))
     print("  => Verified {0}/{1} files.".format(verified, total))
 
     print('')
