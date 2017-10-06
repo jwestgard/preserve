@@ -86,9 +86,10 @@ def get_metadata(file_path):
     metadata = {'Directory': os.path.dirname(os.path.abspath(file_path)),
                 'Filename': os.path.basename(file_path),
                 'MTime': tstamp,
-                'Moddate': dt.fromtimestamp(tstamp).strftime(
-                    '%Y-%m-%dT%H:%M:%S'),
-                'Extension': os.path.splitext(file_path)[1].lstrip('.').upper(),
+                'Moddate': 
+                    dt.fromtimestamp(tstamp).strftime('%Y-%m-%dT%H:%M:%S'),
+                'Extension': 
+                    os.path.splitext(file_path)[1].lstrip('.').upper(),
                 'Bytes': os.path.getsize(file_path),
                 'MD5': md5sum(file_path)
                 }
@@ -161,7 +162,9 @@ def compare(args):
     
     all_lists = [set(filelists[filelist]) for filelist in filelists]
     common = set.intersection(*all_lists)
-    print("{} values are common to all the supplied files:".format(len(common)))
+    print(
+        "{} values are common to all the supplied files:".format(len(common))
+        )
 
     for n, filelist in enumerate(filelists):
         unique = set(filelists[filelist]).difference(common)
@@ -191,7 +194,9 @@ def bytecount(args):
     all_files = get_inventory(PATH)
     
     if not all_files:
-        print("ERROR: Could not read inventory data from the specified path.\n")
+        print(
+            "ERROR: Could not read inventory data from the specified path.\n"
+            )
         sys.exit()
         
     extensions = {}
@@ -305,8 +310,9 @@ def inventory(args):
                     print("Inventory is already complete.\n")
                     sys.exit()
                 elif set(files_done).difference(files_to_check):
-                    print("ERROR: Existing file contains references to files",
-                          "that are not found in the path being inventoried.\n")
+                    print("ERROR: Existing file contains references",
+                          "to files that are not found in the path",
+                          "being inventoried.\n")
                     sys.exit()
                           
                 files_to_check = set(all_files).difference(files_done)
@@ -363,9 +369,15 @@ def verify(args):
     print_header(args.func.__name__)
     
     print("1. Loading data from 1st path...")
-    dict_a = {f['Filename']: f['MD5'] for f in get_inventory(args.first)}
+    dict_a = {
+        os.path.join(f['Directory'], f['Filename']): 
+        f['MD5'] for f in get_inventory(args.first)
+        }
     print("2. Loading data from 2nd path...")
-    dict_b = {f['Filename']: f['MD5'] for f in get_inventory(args.second)}
+    dict_b = {
+        os.path.join(f['Directory'], f['Filename']):
+        f['MD5'] for f in get_inventory(args.second)
+        }
     all_keys = set().union(dict_a.keys(), dict_b.keys())
     not_a = []
     not_b = []
