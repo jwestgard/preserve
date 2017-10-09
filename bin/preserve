@@ -39,6 +39,25 @@ def md5sum(filepath):
     return m.hexdigest()
 
 
+def checksum(filepath, algorithms=None):
+    '''For a given file, return dict of checksums for specified algorithms.'''
+    if os.path.isdir(filepath):
+        return False
+    if not algorithms:
+        algorithms = ['md5']
+    with open(filepath, 'rb') as f:
+        try:
+            hashes = {alg: getattr(hashlib, alg)() for alg in algorithms}
+        except AttributeError:
+            return False
+        while True:
+            data = f.read(8192)
+            if not data:
+                break
+            [hash.update(data) for hash in hashes.values()]
+    return {k: v.hexdigest() for (k,v) in hashes.items()}
+
+
 def human_readable(bytes):
     '''Return human-readable version of a given number of bytes plus the units,
        rounding to two decimal places for scales in KiB and larger.'''
