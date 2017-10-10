@@ -135,8 +135,41 @@ def get_inventory(path):
 #============================================================================
 
 class Asset():
-    def __init__(self, **kwargs):
-        pass
+    def __init__(self, filepath, from_inv=False, **kwargs):
+        self.path = os.path.abspath(filepath)
+        if not os.path.isfile(self.path):
+            raise TypeError
+        if from_inv == True:
+            for key, value in kwargs.items():
+                setattr(self, key, value)
+        else:
+            self.mtime = int(os.path.getmtime(self.path))
+            self.dir   = os.path.dirname(self.path)
+            self.name  = os.path.basename(self.path)
+            self.mod   = dt.fromtimestamp(
+                self.mtime).strftime('%Y-%m-%dT%H:%M:%S'
+                )
+            self.ext   = os.path.splitext(self.path)[1].lstrip('.').upper()
+            self.bytes = os.path.getsize(self.path)
+
+
+    def generate_checksums(self, **args):
+        hashes = {}
+        if not args: args = ['md5']
+        for algorithm in args:
+            try:
+                hashes[algorithm] = getattr(hashlib, algorithm)()
+            except AttributeError:
+                pass
+        with open(self.path, 'rb') as f:
+            while True:
+                data = f.read(8192)
+                if not data:
+                    break
+                else:
+                    [hash.update(data) for hash in hashes.values()]
+        for key, value in hashes.items():
+            setattr(self, key, value.hexdigest())
 
 
 #=== SUBCOMMAND =============================================================
