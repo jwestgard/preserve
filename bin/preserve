@@ -25,39 +25,6 @@ def print_header(subcommand):
     print(bar)
 
 
-def md5sum(filepath):
-    '''For a given file path, return the md5 checksum for that file.'''
-    # TODO: if a path to a directory is passed instead of a file path
-    # gracefully handle the error.
-    with open(filepath, 'rb') as f:
-        m = hashlib.md5()
-        while True:
-            data = f.read(8192)
-            if not data:
-                break
-            m.update(data)
-    return m.hexdigest()
-
-
-def checksum(filepath, algorithms=None):
-    '''For a given file, return dict of checksums for specified algorithms.'''
-    if os.path.isdir(filepath):
-        return False
-    if not algorithms:
-        algorithms = ['md5']
-    with open(filepath, 'rb') as f:
-        try:
-            hashes = {alg: getattr(hashlib, alg)() for alg in algorithms}
-        except AttributeError:
-            return False
-        while True:
-            data = f.read(8192)
-            if not data:
-                break
-            [hash.update(data) for hash in hashes.values()]
-    return {k.upper(): v.hexdigest() for (k,v) in hashes.items()}
-
-
 def human_readable(bytes):
     '''Return human-readable version of a given number of bytes plus the units,
        rounding to two decimal places for scales in KiB and larger.'''
@@ -88,43 +55,31 @@ def list_files(dir_path):
     return result
 
 
-def read_file(file_path):
-    '''Return list of dictionaries representing contents of an inventory 
-       file.'''
-    with open(file_path, 'r') as f:
-        dialect = csv.Sniffer().sniff(f.read(2048))
-        f.seek(0)
-        result = [row for row in csv.DictReader(f, dialect=dialect)]
-    return result
-
-
-def get_metadata(file_path):
-    '''Given a path to a file, return a dictionary representing the 
-       metadata for that file.'''
-    tstamp = int(os.path.getmtime(file_path))
-    metadata = {'Directory': os.path.dirname(os.path.abspath(file_path)),
-                'Filename': os.path.basename(file_path),
-                'MTime': tstamp,
-                'Moddate': 
-                    dt.fromtimestamp(tstamp).strftime('%Y-%m-%dT%H:%M:%S'),
-                'Extension': 
-                    os.path.splitext(file_path)[1].lstrip('.').upper(),
-                'Bytes': os.path.getsize(file_path),
-                'MD5': md5sum(file_path)
-                }
-    metadata.update(checksum(file_path, algorithms=['md5', 'sha1', 'sha256']))
-    return metadata
-
-
 def get_inventory(path):
     '''Given a path to a file or directory, return list of inventory metadata
        based on reading the inventory, or scanning the directory's files.'''
     if os.path.isfile(path):
         print("  => {0} is a file.".format(path))
-        return read_file(path)
+        with open(path, 'r') as infile:
+            dialect = csv.Sniffer().sniff(infile.read(2048))
+            infile.seek(0)
+            result = []
+            for row in csv.DictReader(infile, dialect=dialect):
+                a = Asset()
+                a.read_inventory(**row)
+                result.append(a)
+        print("  => read {0} lines from file.".format(len(result)))
+        return result
     elif os.path.isdir(path):
         print("  => {0} is a directory.".format(path))
-        return [get_metadata(f) for f in list_files(path)]
+        result = []
+        for n, f in enumerate(list_files(path)):
+            print("  => found {0} files.".format(n+1), end='\r')
+            a = Asset()
+            a.analyze_file(f)
+            result.append(a)
+        print("")
+        return result
     else:
         print("  => {0} could not be found!".format(path))
         return False
@@ -135,25 +90,32 @@ def get_inventory(path):
 #============================================================================
 
 class Asset():
-    def __init__(self, filepath, from_inv=False, **kwargs):
+    def __init__(self):
+        pass
+        
+    def read_inventory(self, **kwargs):
+        for key, value in kwargs.items():
+            print(key, value)
+            setattr(self, key.lower(), value)
+        if not hasattr(self, 'path'):
+            print(self.__dict__)
+            self.path = os.path.join(self.directory, self.filename)
+
+    def analyze_file(self, filepath):
         self.path = os.path.abspath(filepath)
         if not os.path.isfile(self.path):
             raise TypeError
-        if from_inv == True:
-            for key, value in kwargs.items():
-                setattr(self, key, value)
         else:
             self.mtime = int(os.path.getmtime(self.path))
-            self.dir   = os.path.dirname(self.path)
-            self.name  = os.path.basename(self.path)
-            self.mod   = dt.fromtimestamp(
-                self.mtime).strftime('%Y-%m-%dT%H:%M:%S'
-                )
-            self.ext   = os.path.splitext(self.path)[1].lstrip('.').upper()
+            self.directory   = os.path.dirname(self.path)
+            self.filename  = os.path.basename(self.path)
+            self.moddate = dt.fromtimestamp(self.mtime).strftime(
+                                                        '%Y-%m-%dT%H:%M:%S')
+            self.extension = os.path.splitext(self.path)[1].lstrip('.').upper()
             self.bytes = os.path.getsize(self.path)
+            self.generate_checksums('md5', 'sha1', 'sha256')
 
-
-    def generate_checksums(self, **args):
+    def generate_checksums(self, *args):
         hashes = {}
         if not args: args = ['md5']
         for algorithm in args:
@@ -344,8 +306,9 @@ def inventory(args):
         print("ERROR: The specified search path does not exist.\n")
         sys.exit()
         
-    FIELDNAMES = ['Directory', 'Filename', 'Extension', 
-                  'Bytes', 'MTime', 'Moddate', 'MD5'
+    FIELDNAMES = ['PATH', 'DIRECTORY', 'FILENAME', 
+                  'EXTENSION', 'BYTES', 'MTIME', 
+                  'MODDATE', 'MD5', 'SHA1', 'SHA256'
                   ]
     
     # Get a list of all files in the search path.
@@ -361,11 +324,11 @@ def inventory(args):
         
         # If the output file exists, read it and resume the job.
         if os.path.isfile(OUTFILE):
-            existing_entries = read_file(OUTFILE)
+            existing_entries = get_inventory(OUTFILE)
             all_keys = set().union(*(e.keys() for e in existing_entries))
             
             # if the CSV file conforms to the pattern
-            if all_keys == set(FIELDNAMES):
+            if all_keys.issubset(FIELDNAMES):
                 files_done = [os.path.join(f['Directory'], f['Filename']) \
                                 for f in existing_entries]
                     
@@ -403,8 +366,9 @@ def inventory(args):
 
     # check each (remaining) file and generate metadata
     for f in files_to_check:
-        metadata = get_metadata(f)
-        writer.writerow(metadata)
+        a = Asset()
+        a.analyze_file(f)
+        writer.writerow({k.upper(): v for k, v in a.__dict__.items()})
         count += 1
             
         if OUTFILE:
@@ -420,6 +384,7 @@ def inventory(args):
         print('')
 
 
+
 #=== SUBCOMMAND =============================================================
 #         NAME: verify
 #  DESCRIPTION: verify two sets of files (on disk or as recorded in CSV file) 
@@ -433,15 +398,9 @@ def verify(args):
     print_header(args.func.__name__)
     
     print("1. Loading data from 1st path...")
-    dict_a = {
-        os.path.join(f['Directory'], f['Filename']): 
-        f['MD5'] for f in get_inventory(args.first)
-        }
+    dict_a = {f.path: f.md5 for f in get_inventory(args.first)}
     print("2. Loading data from 2nd path...")
-    dict_b = {
-        os.path.join(f['Directory'], f['Filename']):
-        f['MD5'] for f in get_inventory(args.second)
-        }
+    dict_b = {f.path: f.md5 for f in get_inventory(args.second)}
     all_keys = set().union(dict_a.keys(), dict_b.keys())
     not_a = []
     not_b = []
@@ -496,7 +455,7 @@ def main():
                             title='subcommands', 
                             description='valid subcommands', 
                             help='-h additional help', 
-                            metavar='{bc,inv,comp,ver}',
+                            metavar='{bc,ia,inv,comp,ver}',
                             dest='cmd'
                             )
     
@@ -533,29 +492,29 @@ def main():
     bc_parser.set_defaults(func=bytecount)
     
     
-    # parser for the "inventory" sub-command
-    inv_parser = subparsers.add_parser(
+    # parser for the "inv_assets" sub-command
+    ia_parser = subparsers.add_parser(
                             'inventory', aliases=['inv'],
                             help='Create inventory of files with checksums',
                             description='Create dirlisting with file metadata.'
                             )
                             
-    inv_parser.add_argument('path',
+    ia_parser.add_argument('path',
                             help='path to search',
                             action='store'
                             )
     
-    inv_parser.add_argument('-o', '--outfile',
+    ia_parser.add_argument('-o', '--outfile',
                             help='path to (new) output file',
                             action='store'
                             )
 
-    inv_parser.add_argument('-e', '--existing',
+    ia_parser.add_argument('-e', '--existing',
                             help='path to (existing) output file',
                             action='store'
                             )
     
-    inv_parser.set_defaults(func=inventory)
+    ia_parser.set_defaults(func=inventory)
     
     
     # parser for the "compare" sub-command
