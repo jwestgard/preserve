@@ -89,16 +89,14 @@ def get_inventory(path):
 # ASSET CLASS
 #============================================================================
 
-class Asset():
+class Asset(dict):
     def __init__(self):
         pass
         
     def read_inventory(self, **kwargs):
         for key, value in kwargs.items():
-            print(key, value)
             setattr(self, key.lower(), value)
         if not hasattr(self, 'path'):
-            print(self.__dict__)
             self.path = os.path.join(self.directory, self.filename)
 
     def analyze_file(self, filepath):
@@ -325,11 +323,13 @@ def inventory(args):
         # If the output file exists, read it and resume the job.
         if os.path.isfile(OUTFILE):
             existing_entries = get_inventory(OUTFILE)
-            all_keys = set().union(*(e.keys() for e in existing_entries))
+            all_keys = set().union(
+                *(e.__dict__.keys() for e in existing_entries)
+                )
             
             # if the CSV file conforms to the pattern
-            if all_keys.issubset(FIELDNAMES):
-                files_done = [os.path.join(f['Directory'], f['Filename']) \
+            if all_keys.issubset([fname.lower() for fname in FIELDNAMES]):
+                files_done = [os.path.join(f.directory, f.filename) \
                                 for f in existing_entries]
                     
                 # Handle various problem cases
@@ -361,7 +361,7 @@ def inventory(args):
     # Write the existing portion of the inventory to the output file
     if OUTFILE:
         for entry in existing_entries:
-            writer.writerow(entry)
+            writer.writerow({k.upper():v for (k,v) in entry.__dict__.items()})
             count += 1
 
     # check each (remaining) file and generate metadata
