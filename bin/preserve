@@ -226,10 +226,10 @@ def bytecount(args):
     totalbytes = 0
     
     # Handle different keys in inventory files
-    if {'BYTES','EXTENSION'}.issubset(all_files[0].keys()):
+    if {'BYTES','EXTENSION'}.issubset([k.upper() for k in all_files[0].keys()]):
         byte_key = 'Bytes'
         ext_key = 'Extension'
-    elif {'SIZE','TYPE'}.issubset(all_files[0].keys()):
+    elif {'SIZE','TYPE'}.issubset([k.upper() for k in all_files[0].keys()]):
         byte_key = 'Size'
         ext_key = 'Type'
     else:
