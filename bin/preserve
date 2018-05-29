@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 #-*- coding: utf-8 -*-
 
-from __future__ import print_function
-
 import argparse
 import csv
 from datetime import datetime as dt
@@ -17,12 +15,10 @@ import sys
 #============================================================================
 
 def print_header(subcommand):
-    '''Common header formatting for each subcommand.'''
+    '''Format and print a common header for each subcommand.'''
     title = 'preserve.py {0}'.format(subcommand)
-    bar = '=' * len(title)
-    print('')
-    print(title)
-    print(bar)
+    print('\n' + title)
+    print('=' * len(title))
 
 
 def md5sum(filepath):
@@ -358,7 +354,6 @@ def verify(args):
     print("  => {0} files are in 2 but not 1.".format(len(not_a)))
     print("  => {0} files show a checksum mismatch.".format(len(changed)))
     print("  => Verified {0}/{1} files.".format(verified, total))
-
     print('')
 
 
@@ -469,11 +464,10 @@ def main():
                             
     comp_parser.set_defaults(func=verify)
 
-
     # parse the args and call the default sub-command function
     args = parser.parse_args()
     args.func(args)
-    
+
 
 if __name__ == "__main__":
     main()
