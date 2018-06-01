@@ -6,7 +6,6 @@ from preserve.commands.bytecount import bytecount as bytecount
 from preserve.commands.compare import compare as compare
 from preserve.commands.inventory import inventory as inventory
 from preserve.commands.verify import verify as verify
-from preserve.batch import list_files as list_files
 
 #============================================================================
 # HELPER FUNCTIONS 
