@@ -6,20 +6,28 @@ import re
 import sys
 
 
-class Asset(dict):
-    def __init__(self, values):
-        print(values)
+class Asset():
 
-    @classmethod
-    def from_csv(cls, **kwargs):
+    '''    # Handle different keys in inventory files
+    all_keys_upper = [k.upper() for k in all_files[0].__dict__.keys()]
+    if {'BYTES','EXTENSION'}.issubset(all_keys_upper):
+        byte_key = 'Bytes'
+        ext_key = 'Extension'
+    elif {'SIZE','TYPE'}.issubset(all_keys_upper):
+        byte_key = 'Size'
+        ext_key = 'Type'
+    else:
+        print("ERROR: Cannot interpret this inventory file.\n")
+        sys.exit()'''
+
+    def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key.lower(), value)
         if not hasattr(self, 'path'):
             self.path = os.path.join(self.directory, self.filename)
-        return cls()
 
     @classmethod
-    def from_asset(cls, path, hash_algs):
+    def from_filesystem(cls, path, hash_algs=['md5']):
         if not os.path.isfile(path):
             raise TypeError
         else:
@@ -43,4 +51,4 @@ class Asset(dict):
                         else:
                             hash.update(data)
                 values[algorithm] = hash.hexdigest()
-            return cls(values)
+            return cls(**values)

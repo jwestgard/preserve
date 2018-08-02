@@ -3,15 +3,15 @@
 #  DESCRIPTION: count files by extention and sum their sizes
 #============================================================================
 
+from ..batch import get_inventory
+from ..batch import human_readable
+
 def bytecount(args):
     '''Sum the bytes in an inventory file or a directory tree, reporting total 
        bytes and number of files broken down by extension.'''
-    print_header(args.func.__name__)
-
     print("Loading data from specified path...")
     PATH = args.path
     all_files = get_inventory(PATH)
-
     if not all_files:
         print(
             "ERROR: Could not read inventory data from the specified path.\n"
@@ -21,21 +21,10 @@ def bytecount(args):
     extensions = {}
     totalbytes = 0
 
-    # Handle different keys in inventory files
-    if {'BYTES','EXTENSION'}.issubset([k.upper() for k in all_files[0].keys()]):
-        byte_key = 'Bytes'
-        ext_key = 'Extension'
-    elif {'SIZE','TYPE'}.issubset([k.upper() for k in all_files[0].keys()]):
-        byte_key = 'Size'
-        ext_key = 'Type'
-    else:
-        print("ERROR: Cannot interpret this inventory file.\n")
-        sys.exit()
-
     # Iterate over the rows of the inventory
     for f in all_files:
-        totalbytes += int(f[byte_key])
-        ext = f[ext_key]
+        totalbytes += int(getattr(f, 'bytes'))
+        ext = getattr(f, 'extension')
         if ext in extensions:
             extensions[ext] += 1
         else:

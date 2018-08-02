@@ -1,4 +1,6 @@
+import csv
 import os
+from .asset import Asset as Asset
 
 def human_readable(bytes):
     '''Return human-readable version of a given number of bytes plus the units,
@@ -40,8 +42,7 @@ def get_inventory(path):
             infile.seek(0)
             result = []
             for row in csv.DictReader(infile, dialect=dialect):
-                a = Asset()
-                a.read_inventory(**row)
+                a = Asset(**row)
                 result.append(a)
         print("  => read {0} lines from file.".format(len(result)))
         return result
@@ -51,7 +52,6 @@ def get_inventory(path):
         for n, f in enumerate(list_files(path)):
             print("  => found {0} files.".format(n+1), end='\r')
             a = Asset()
-            a.analyze_file(f)
             result.append(a)
         print("")
         return result

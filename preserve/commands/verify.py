@@ -8,8 +8,6 @@ def verify(args):
     '''Verify the identity of two inventories (either stored or created on 
        the fly), by checking for the presence of all files and comparing the 
        checksums of each one.'''
-    print_header(args.func.__name__)
-
     print("1. Loading data from 1st path...")
     dict_a = {f.path: f.md5 for f in get_inventory(args.first)}
     print("2. Loading data from 2nd path...")
