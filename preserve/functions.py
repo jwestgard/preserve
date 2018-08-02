@@ -1,6 +1,7 @@
 import csv
 import os
-from .asset import Asset as Asset
+from .asset import Asset
+
 
 def human_readable(bytes):
     '''Return human-readable version of a given number of bytes plus the units,
@@ -51,7 +52,7 @@ def get_inventory(path):
         result = []
         for n, f in enumerate(list_files(path)):
             print("  => found {0} files.".format(n+1), end='\r')
-            a = Asset()
+            a = Asset.from_filesystem(f)
             result.append(a)
         print("")
         return result

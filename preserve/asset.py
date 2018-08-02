@@ -1,31 +1,23 @@
-import csv
 from datetime import datetime as dt
 import hashlib
 import os
-import re
-import sys
-
 
 class Asset():
-
-    '''    # Handle different keys in inventory files
-    all_keys_upper = [k.upper() for k in all_files[0].__dict__.keys()]
-    if {'BYTES','EXTENSION'}.issubset(all_keys_upper):
-        byte_key = 'Bytes'
-        ext_key = 'Extension'
-    elif {'SIZE','TYPE'}.issubset(all_keys_upper):
-        byte_key = 'Size'
-        ext_key = 'Type'
-    else:
-        print("ERROR: Cannot interpret this inventory file.\n")
-        sys.exit()'''
+    '''Class representing the key characteristics of a digital asset'''
 
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
-            setattr(self, key.lower(), value)
+            # Catch non-standard keys used in File Analyzer inventories
+            if key == 'Size':
+                setattr(self, 'bytes', value)
+            elif key == 'Type':
+                setattr(self, 'extension', value)
+            else:
+                setattr(self, key.lower(), value)
         if not hasattr(self, 'path'):
             self.path = os.path.join(self.directory, self.filename)
 
+    # Generate asset dictionary by examining file on disk
     @classmethod
     def from_filesystem(cls, path, hash_algs=['md5']):
         if not os.path.isfile(path):
