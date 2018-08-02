@@ -2,8 +2,11 @@
 #-*- coding: utf-8 -*-
 
 import argparse
-from .asset import Asset
-from .subcommands import bytecount, compare, inventory, verify
+from asset import Asset
+from bytecount import bytecount
+from compare import compare
+from inventory import inventory
+from verify import verify
 
 #============================================================================
 # HELPER FUNCTIONS 

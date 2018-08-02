@@ -1,6 +1,6 @@
+from asset import Asset
 import csv
 import os
-from .asset import Asset
 
 
 def human_readable(bytes):
