@@ -1,14 +1,15 @@
+import csv
+import os
+import sys
+
+from .asset import Asset
+from .functions import get_inventory, list_files
+
+
 #=== SUBCOMMAND =============================================================
 #         NAME: inventory
 #  DESCRIPTION: Generates a file listing with checksum, file size, timestamp
 #============================================================================
-
-from asset import Asset
-import csv
-from functions import list_files
-import os
-import sys
-
 
 def inventory(args):
     '''Create a CSV inventory of file metadata for files in 

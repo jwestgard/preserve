@@ -1,4 +1,3 @@
-
 #=== SUBCOMMAND =============================================================
 #         NAME: bytecount
 #  DESCRIPTION: count files by extention and sum their sizes

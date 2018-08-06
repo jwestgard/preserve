@@ -1,4 +1,3 @@
-
 #=== SUBCOMMAND =============================================================
 #         NAME: compare
 #  DESCRIPTION: check for the presence of files in inventories of various

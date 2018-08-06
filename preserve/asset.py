@@ -19,7 +19,7 @@ class Asset():
 
     # Generate asset dictionary by examining file on disk
     @classmethod
-    def from_filesystem(cls, path, hash_algs=['md5']):
+    def from_filesystem(cls, path, hash_algs=['md5','sha1','sha256']):
         if not os.path.isfile(path):
             raise TypeError
         else:

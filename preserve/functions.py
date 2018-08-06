@@ -1,6 +1,8 @@
-from asset import Asset
 import csv
 import os
+import sys
+
+from .asset import Asset
 
 
 def human_readable(bytes):
@@ -58,5 +60,5 @@ def get_inventory(path):
         return result
     else:
         print("  => {0} could not be found!".format(path))
-        return False
+        sys.exit()
 
