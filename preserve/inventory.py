@@ -63,8 +63,9 @@ def inventory(args):
 
             # if the CSV file conforms to the pattern
             if all_keys.issubset([fname.lower() for fname in FIELDNAMES]):
-                files_done = [os.path.join(f.directory, f.filename) \
-                                for f in existing_entries]
+                files_done = [os.path.join(
+                                f.directory, f.filename
+                                ) for f in existing_entries]
 
                 # Handle various problem cases
                 if files_done == files_to_check:
