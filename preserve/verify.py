@@ -1,4 +1,4 @@
-from .functions import get_inventory, list_files, human_readable
+from .functions import get_inventory
 
 #=== SUBCOMMAND =============================================================
 #         NAME: verify
