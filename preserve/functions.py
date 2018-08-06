@@ -41,7 +41,7 @@ def get_inventory(path):
     if os.path.isfile(path):
         print("  => {0} is a file.".format(path))
         with open(path, 'r') as infile:
-            dialect = csv.Sniffer().sniff(infile.read(2048))
+            dialect = csv.Sniffer().sniff(infile.readline())
             infile.seek(0)
             result = []
             for row in csv.DictReader(infile, dialect=dialect):
