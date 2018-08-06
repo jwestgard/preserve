@@ -1,3 +1,5 @@
+from .functions import get_inventory, human_readable
+
 #=== SUBCOMMAND =============================================================
 #         NAME: bytecount
 #  DESCRIPTION: count files by extention and sum their sizes
