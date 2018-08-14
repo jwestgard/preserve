@@ -1,5 +1,6 @@
 import csv
 import os
+import re
 
 #=== SUBCOMMAND =============================================================
 #         NAME: compare
