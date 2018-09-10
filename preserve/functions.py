@@ -1,4 +1,7 @@
+import csv
 import os
+import sys
+from asset import Asset
 
 def human_readable(bytes):
     '''Return human-readable version of a given number of bytes plus the units,
@@ -16,7 +19,6 @@ def human_readable(bytes):
             return(scaled, orders_mag[n])
     return False
 
-
 def list_files(dir_path):
     '''Return a list of files in a directory tree, pruning out the 
        hidden files & dirs (i.e. those that begin with dot).'''
@@ -29,19 +31,17 @@ def list_files(dir_path):
         result.extend([os.path.join(root, f) for f in files])
     return result
 
-
 def get_inventory(path):
     '''Given a path to a file or directory, return list of inventory metadata
        based on reading the inventory, or scanning the directory's files.'''
     if os.path.isfile(path):
         print("  => {0} is a file.".format(path))
         with open(path, 'r') as infile:
-            dialect = csv.Sniffer().sniff(infile.read(2048))
+            dialect = csv.Sniffer().sniff(infile.readline())
             infile.seek(0)
             result = []
             for row in csv.DictReader(infile, dialect=dialect):
-                a = Asset()
-                a.read_inventory(**row)
+                a = Asset().from_csv(**row)
                 result.append(a)
         print("  => read {0} lines from file.".format(len(result)))
         return result
@@ -50,12 +50,10 @@ def get_inventory(path):
         result = []
         for n, f in enumerate(list_files(path)):
             print("  => found {0} files.".format(n+1), end='\r')
-            a = Asset()
-            a.analyze_file(f)
+            a = Asset.from_filesystem(f)
             result.append(a)
         print("")
         return result
     else:
         print("  => {0} could not be found!".format(path))
-        return False
-
+        sys.exit()

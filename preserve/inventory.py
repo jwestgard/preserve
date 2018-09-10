@@ -1,8 +1,9 @@
 import csv
 import os
 import sys
-from ..asset import Asset
-from ..batch import list_files
+from asset import Asset
+from functions import get_inventory
+from functions import list_files
 
 
 #=== SUBCOMMAND =============================================================
@@ -12,30 +13,22 @@ from ..batch import list_files
 
 def inventory(args):
     '''Create a CSV inventory of file metadata for files in 
-       a specified path.'''
-    if args.outfile or args.existing:
-        print_header(args.func.__name__)
-        
+       a specified path.'''  
     if args.outfile:
         OUTFILE = os.path.abspath(args.outfile)
-
         if os.path.isfile(OUTFILE):
             print("ERROR: The output file exists.",
                   "Use the -e flag to resume the job.\n")
             sys.exit()
-            
         elif os.path.isdir(OUTFILE):
             print("ERROR: The specified output path is a directory.\n")
             sys.exit()
-
     elif args.existing:
         OUTFILE = os.path.abspath(args.existing)
-        
         if not os.path.isfile(OUTFILE):
             print("ERROR: Must specify the path to an existing",
                   "inventory file.\n")
             sys.exit()
-
     else:
         OUTFILE = None
 
@@ -70,8 +63,9 @@ def inventory(args):
 
             # if the CSV file conforms to the pattern
             if all_keys.issubset([fname.lower() for fname in FIELDNAMES]):
-                files_done = [os.path.join(f.directory, f.filename) \
-                                for f in existing_entries]
+                files_done = [os.path.join(
+                                f.directory, f.filename
+                                ) for f in existing_entries]
 
                 # Handle various problem cases
                 if files_done == files_to_check:
@@ -91,7 +85,8 @@ def inventory(args):
                       "formatted inventory CSV.\n")
                 sys.exit()
 
-        fh = open(OUTFILE, 'w+')
+        buffer = 1
+        fh = open(OUTFILE, 'w+', buffer)
 
     # If no output file has been specified, write to stdout
     else:
@@ -107,8 +102,7 @@ def inventory(args):
 
     # check each (remaining) file and generate metadata
     for f in files_to_check:
-        hash_algs = ['md5', 'sha1', 'sha256']
-        a = Asset().from_file(f, hash_algs)
+        a = Asset().from_filesystem(f)
         writer.writerow({k.upper(): v for k, v in a.__dict__.items()})
         count += 1
             
@@ -123,3 +117,4 @@ def inventory(args):
         # report successful completion
         print('Inventory complete!')
         print('')
+

@@ -2,10 +2,11 @@
 #-*- coding: utf-8 -*-
 
 import argparse
-from preserve.commands.bytecount import bytecount as bytecount
-from preserve.commands.compare import compare as compare
-from preserve.commands.inventory import inventory as inventory
-from preserve.commands.verify import verify as verify
+from bytecount import bytecount
+from compare import compare
+from inventory import inventory
+from verify import verify
+
 
 #============================================================================
 # HELPER FUNCTIONS 
@@ -38,7 +39,7 @@ def main():
     parser.add_argument('-v', '--version', 
                         action='version', 
                         help='Print version number and exit',
-                        version='%(prog)s 0.1'
+                        version='%(prog)s 0.2'
                         )
     subparsers.required = True
 

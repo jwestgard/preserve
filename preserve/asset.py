@@ -1,9 +1,6 @@
-import csv
 from datetime import datetime as dt
 import hashlib
 import os
-import re
-import sys
 
 def calculate_hash(path, alg):
     hash = getattr(hashlib, alg)()
@@ -20,21 +17,21 @@ class Asset(dict):
     def __init__(self, **kwargs):
         for k,v in kwargs.items():
             setattr(self, k, v)
-            print("{}: {}".format(k,v))
 
     @classmethod
     def from_csv(cls, **kwargs):
         '''alternate constructor for reading data from inventory csv'''
         values = {}
         for k, v in kwargs.items():
-            setattr(values, k.lower(), v)
+            values[k.lower()] = v
         if not hasattr(values, 'path'):
             values['path'] = os.path.join(values['directory'],
                                           values['filename'])
         return cls(**values)
 
+    # Generate asset dictionary by examining file on disk
     @classmethod
-    def from_file(cls, path, hash_algs):
+    def from_filesystem(cls, path, hash_algs=['md5','sha1','sha256']):
         '''alternate constructory for reading attributes from file'''
         if not os.path.isfile(path):
             raise TypeError
