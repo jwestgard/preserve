@@ -5,21 +5,37 @@ import os
 import re
 import sys
 
+def calculate_hash(path, alg):
+    hash = getattr(hashlib, alg)()
+    with open(path, 'rb') as f:
+        while True:
+            data = f.read(8192)
+            if not data:
+                break
+            else:
+                hash.update(data)
+        return hash.hexdigest()
 
 class Asset(dict):
-    def __init__(self, values):
-        print(values)
+    def __init__(self, **kwargs):
+        for k,v in kwargs.items():
+            setattr(self, k, v)
+            print("{}: {}".format(k,v))
 
     @classmethod
     def from_csv(cls, **kwargs):
-        for key, value in kwargs.items():
-            setattr(self, key.lower(), value)
-        if not hasattr(self, 'path'):
-            self.path = os.path.join(self.directory, self.filename)
-        return cls()
+        '''alternate constructor for reading data from inventory csv'''
+        values = {}
+        for k, v in kwargs.items():
+            setattr(values, k.lower(), v)
+        if not hasattr(values, 'path'):
+            values['path'] = os.path.join(values['directory'],
+                                          values['filename'])
+        return cls(**values)
 
     @classmethod
-    def from_asset(cls, path, hash_algs):
+    def from_file(cls, path, hash_algs):
+        '''alternate constructory for reading attributes from file'''
         if not os.path.isfile(path):
             raise TypeError
         else:
@@ -32,15 +48,7 @@ class Asset(dict):
                 'extension': os.path.splitext(path)[1].lstrip('.').upper()
                 }
             values['moddate'] = dt.fromtimestamp(values['mtime']).strftime(
-                                        '%Y-%m-%dT%H:%M:%S')
+                                                           '%Y-%m-%dT%H:%M:%S')
             for algorithm in hash_algs:
-                hash = getattr(hashlib, algorithm)()
-                with open(values['path'], 'rb') as f:
-                    while True:
-                        data = f.read(8192)
-                        if not data:
-                            break
-                        else:
-                            hash.update(data)
-                values[algorithm] = hash.hexdigest()
-            return cls(values)
+                values[algorithm] = calculate_hash(path, algorithm)
+        return cls(**values)

@@ -1,8 +1,8 @@
 import csv
 import os
 import sys
-from ..asset import Asset as Asset
-from ..batch import list_files as list_files
+from ..asset import Asset
+from ..batch import list_files
 
 
 #=== SUBCOMMAND =============================================================
@@ -107,8 +107,8 @@ def inventory(args):
 
     # check each (remaining) file and generate metadata
     for f in files_to_check:
-        a = Asset()
-        a.analyze_file(f)
+        hash_algs = ['md5', 'sha1', 'sha256']
+        a = Asset().from_file(f, hash_algs)
         writer.writerow({k.upper(): v for k, v in a.__dict__.items()})
         count += 1
             
