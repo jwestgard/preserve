@@ -1,9 +1,9 @@
 import csv
 import os
 import sys
-from asset import Asset
-from functions import get_inventory
-from functions import list_files
+from .asset import Asset
+from .functions import get_inventory
+from .functions import list_files
 
 
 #=== SUBCOMMAND =============================================================

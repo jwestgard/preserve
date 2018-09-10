@@ -1,4 +1,4 @@
-from functions import get_inventory
+from .functions import get_inventory
 
 #=== SUBCOMMAND =============================================================
 #         NAME: verify

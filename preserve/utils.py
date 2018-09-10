@@ -1,7 +1,7 @@
 import csv
 import os
 import sys
-from asset import Asset
+from .asset import Asset
 
 def human_readable(bytes):
     '''Return human-readable version of a given number of bytes plus the units,
