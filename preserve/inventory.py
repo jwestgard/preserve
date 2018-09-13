@@ -2,8 +2,8 @@ import csv
 import os
 import sys
 from .asset import Asset
-from .functions import get_inventory
-from .functions import list_files
+from .utils import get_inventory
+from .utils import list_files
 
 
 #=== SUBCOMMAND =============================================================
@@ -13,83 +13,89 @@ from .functions import list_files
 
 def inventory(args):
     '''Create a CSV inventory of file metadata for files in 
-       a specified path.'''  
-    if args.outfile:
-        OUTFILE = os.path.abspath(args.outfile)
-        if os.path.isfile(OUTFILE):
-            print("ERROR: The output file exists.",
-                  "Use the -e flag to resume the job.\n")
-            sys.exit()
-        elif os.path.isdir(OUTFILE):
-            print("ERROR: The specified output path is a directory.\n")
-            sys.exit()
-    elif args.existing:
-        OUTFILE = os.path.abspath(args.existing)
-        if not os.path.isfile(OUTFILE):
-            print("ERROR: Must specify the path to an existing",
-                  "inventory file.\n")
-            sys.exit()
-    else:
-        OUTFILE = None
-
-    if os.path.exists(args.path):
-        PATH = os.path.abspath(args.path)
-    else:
-        print("ERROR: The specified search path does not exist.\n")
-        sys.exit()
-
+       a specified path.'''
     FIELDNAMES = ['PATH', 'DIRECTORY', 'FILENAME', 
                   'EXTENSION', 'BYTES', 'MTIME', 
                   'MODDATE', 'MD5', 'SHA1', 'SHA256'
                   ]
 
+    # Handle errors in the user-supplied paths
+    if args.outfile:
+        OUTFILE = os.path.abspath(args.outfile)
+        if os.path.isfile(OUTFILE):
+            sys.exit(
+                "ERROR: The output file exists. " +
+                "Use the -e flag to resume the job.\n\n"
+                )
+        elif os.path.isdir(OUTFILE):
+            sys.exit(
+                "ERROR: The specified output path is a directory.\n\n"
+                )
+    elif args.existing:
+        OUTFILE = os.path.abspath(args.existing)
+        if not os.path.isfile(OUTFILE):
+            sys.exit(
+                "ERROR: Must specify the path " +
+                "to an existing inventory file.\n\n"
+                )
+    else:
+        OUTFILE = None
+
+    # Ensure that the path to be checked is valid
+    if os.path.exists(args.path):
+        PATH = os.path.abspath(args.path)
+    else:
+        sys.exit(
+            "ERROR: The specified search path does not exist.\n\n"
+            )
+
     # Get a list of all files in the search path.
     all_files = list_files(PATH)
     total = len(all_files)
-    files_to_check = all_files  # overriden if outfile specified
-    existing_entries = []       # overriden if outfile specified
+    files_to_check = all_files  # overriden if OUTFILE specified
+    existing_entries = []       # overriden if OUTFILE specified
     count = 0
-
+    sys.stderr.write("Checking path: {0}\n".format(PATH))
     if OUTFILE:
-        print("Checking path: {0}".format(PATH))
-        print("Writing to file: {0}".format(OUTFILE))
-
+        sys.stderr.write("Writing to file: {0}\n".format(OUTFILE))
         # If the output file exists, read it and resume the job.
         if os.path.isfile(OUTFILE):
             existing_entries = get_inventory(OUTFILE)
             all_keys = set().union(
                 *(e.__dict__.keys() for e in existing_entries)
                 )
-
             # if the CSV file conforms to the pattern
             if all_keys.issubset([fname.lower() for fname in FIELDNAMES]):
-                files_done = [os.path.join(
-                                f.directory, f.filename
-                                ) for f in existing_entries]
-
-                # Handle various problem cases
+                files_done = [
+                    os.path.join(f.directory, f.filename) \
+                    for f in existing_entries
+                    ]
+                # Handle a complete inventory ...
                 if files_done == files_to_check:
-                    print("Inventory is already complete.\n")
-                    sys.exit()
+                    sys.exit(
+                        "Inventory is already complete.\n\n"
+                        )
+                # or an erroneous partial inventory
                 elif set(files_done).difference(files_to_check):
-                    print("ERROR: Existing file contains references",
-                          "to files that are not found in the path",
-                          "being inventoried.\n")
-                    sys.exit()
-
+                    sys.exit(
+                        "ERROR: Existing file contains references " +
+                        "to files that are not found in the path " +
+                        "being inventoried.\n\n"
+                        )
+                # Create the set of remaining files to be checked
                 files_to_check = set(all_files).difference(files_done)
-
             # Handle non-conforming CSV file
             else:
-                print("ERROR: The specified output file is not a correctly",
-                      "formatted inventory CSV.\n")
-                sys.exit()
-
-        buffer = 1
-        fh = open(OUTFILE, 'w+', buffer)
+                sys.exit(
+                    "ERROR: The specified output file is not a correctly" +
+                    "formatted inventory CSV.\n\n"
+                    )
+        # open line-buffered file handle
+        fh = open(OUTFILE, 'w+', 1)
 
     # If no output file has been specified, write to stdout
     else:
+        sys.stderr.write("Piping inventory to stdout\n")
         fh = sys.stdout
 
     writer = csv.DictWriter(fh, fieldnames=FIELDNAMES)
@@ -100,21 +106,18 @@ def inventory(args):
             writer.writerow({k.upper():v for (k,v) in entry.__dict__.items()})
             count += 1
 
-    # check each (remaining) file and generate metadata
+    # Check each (remaining) file and generate metadata
     for f in files_to_check:
         a = Asset().from_filesystem(f)
         writer.writerow({k.upper(): v for k, v in a.__dict__.items()})
-        count += 1
-            
-        if OUTFILE:
-            # display running counter
-            print("Files checked: {0}/{1}".format(count, total), end='\r')
+        count += 1  
+        # Display a running counter
+        sys.stderr.write(
+            "\rFiles checked: {0}/{1}".format(count, total)
+            )
 
-    if OUTFILE:
-        fh.close()
-        # clear counter
-        print('')
-        # report successful completion
-        print('Inventory complete!')
-        print('')
+    # Clear the counter, report results, and close file handle
+    sys.stderr.write('\n')
+    sys.stderr.write('Inventory complete!\n\n')
+    fh.close()
 

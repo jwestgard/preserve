@@ -2,6 +2,7 @@
 #-*- coding: utf-8 -*-
 
 import argparse
+import sys
 from .bytecount import bytecount
 from .compare import compare
 from .inventory import inventory
@@ -15,8 +16,9 @@ from .verify import verify
 def print_header(subcommand):
     '''Format and print a common header for each subcommand.'''
     title = 'preserve.py {0}'.format(subcommand)
-    print('\n' + title)
-    print('=' * len(title))
+    sys.stderr.write(
+        '\n{0}\n{1}\n'.format(title, '=' * len(title))
+        )
 
 
 #============================================================================
