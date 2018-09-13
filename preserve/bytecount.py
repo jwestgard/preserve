@@ -9,14 +9,13 @@ from .utils import human_readable
 def bytecount(args):
     '''Sum the bytes in an inventory file or a directory tree, reporting total 
        bytes and number of files broken down by extension.'''
-    print("Loading data from specified path...")
     PATH = args.path
+    print("Loading data from specified path...")
     all_files = get_inventory(PATH)
     if not all_files:
-        print(
+        sys.exit(
             "ERROR: Could not read inventory data from the specified path.\n"
             )
-        sys.exit()
 
     extensions = {}
     totalbytes = 0
@@ -45,6 +44,4 @@ def bytecount(args):
             str(totalbytes), len(all_files)
             ))
 
-    print('({0})'.format(", ".join(exts_summary)))
-    print('')
-
+    print('({0}\n)'.format(", ".join(exts_summary)))

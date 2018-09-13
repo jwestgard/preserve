@@ -34,7 +34,7 @@ def verify(args):
         print("Checked {0}/{1} files.".format(n+1, total), end='\r')
 
     # Clear counter
-    print('')
+    print()
 
     # Report success or failure of verification
     if not any([not_a, not_b, changed]):
@@ -48,5 +48,4 @@ def verify(args):
     print("  => {0} files show a checksum mismatch.".format(len(changed)))
     for k,v in changed.items():
         print("     - {0}: {1} != {2}".format(k, v[0], v[1]))
-    print("  => Verified {0}/{1} files.".format(verified, total))
-    print('')
+    print("  => Verified {0}/{1} files.\n".format(verified, total))

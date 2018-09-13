@@ -3,6 +3,8 @@ import hashlib
 import os
 
 def calculate_hash(path, alg):
+    '''Given a path to a file and a hash algorithm, calculate and 
+       return the hash digest of the file'''
     hash = getattr(hashlib, alg)()
     with open(path, 'rb') as f:
         while True:
@@ -14,13 +16,15 @@ def calculate_hash(path, alg):
         return hash.hexdigest()
 
 class Asset(dict):
+    '''Class representing the metadata pertaining to an instance of
+       a particular digital asset'''
     def __init__(self, **kwargs):
         for k,v in kwargs.items():
             setattr(self, k, v)
 
     @classmethod
     def from_csv(cls, **kwargs):
-        '''alternate constructor for reading data from inventory csv'''
+        '''Alternate constructor for reading data from inventory csv'''
         values = {}
         for k, v in kwargs.items():
             values[k.lower()] = v
@@ -29,10 +33,9 @@ class Asset(dict):
                                           values['filename'])
         return cls(**values)
 
-    # Generate asset dictionary by examining file on disk
     @classmethod
     def from_filesystem(cls, path, hash_algs=['md5','sha1','sha256']):
-        '''alternate constructory for reading attributes from file'''
+        '''Alternate constructor for reading attributes from file'''
         if not os.path.isfile(path):
             raise TypeError
         else:

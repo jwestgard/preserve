@@ -52,8 +52,8 @@ def get_inventory(path):
             print("  => found {0} files.".format(n+1), end='\r')
             a = Asset.from_filesystem(f)
             result.append(a)
-        print("")
+        print()
         return result
     else:
-        print("  => {0} could not be found!".format(path))
-        sys.exit()
+        sys.exit("  => {0} could not be found!".format(path))
+        
