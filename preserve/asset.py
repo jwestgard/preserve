@@ -15,7 +15,7 @@ def calculate_hash(path, alg):
                 hash.update(data)
         return hash.hexdigest()
 
-class Asset(dict):
+class Asset():
     '''Class representing the metadata pertaining to an instance of
        a particular digital asset'''
     def __init__(self, **kwargs):

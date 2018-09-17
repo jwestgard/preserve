@@ -1,72 +1,56 @@
-from .asset import Asset
+from asset import Asset
 import csv
+import os
+import re
 
 class Manifest(list):
     '''Class representing a set of Asset objects in a particular 
        storage location'''
-    def __init__(self, *args):
-        for k,v in kwargs.items():
-            setattr(self, k, v)
-
-    @classmethod
-    def from_tsm_report(cls, path):
-        '''Alternate constructor for reading data from Tivoli 
-           Storage Manager Report'''
-        with open(path, 'r') as handle:
-            
-        for k, v in kwargs.items():
-            values[k.lower()] = v
-        if not hasattr(values, 'path'):
-            values['path'] = os.path.join(values['directory'],
-                                          values['filename'])
-        return cls(**values)
-
-    @classmethod
-    def from_inventory_csv(cls, path):
-        '''Alternate constructor for reading data from csv'''
-        with open(path, 'r') as handle:
-            reader = csv.DictReader(handle)
-            for row in reader:
-            values[k.lower()] = v
-        if not hasattr(values, 'path'):
-            values['path'] = os.path.join(values['directory'],
-                                          values['filename'])
-        return cls(**values)
-
-'''     with open(filepath, 'r') as f:
-            rawlines = [line.strip('\n') for line in f.readlines()]
-            if rawlines[0] == "IBM Tivoli Storage Manager":
-                print("Parsing Tivoli output file...")
-                p = re.compile(r"([^\\]+) \[Sent\]")
-                for line in rawlines:
-                    if 'Normal File-->' in line:
-                        m = p.search(line)
-                        if m:
-                            result.append(m.group(1))
-            elif any(marker in rawlines[0] for marker in markers):
-                print("Parsing DPI inventory file... ", end='')
-                for marker in markers:
-                    if marker in rawlines[0]:
-                        filenamecol = marker
-                        if marker.isupper():
-                            dircol = "DIRECTORY"
-                        else:
-                            dircol = "Directory"
-                        break
-                if '\t' in rawlines[0]:
-                    print('tab delimited:')
-                    delimiter = '\t'
-                else:
-                    print('comma delimited:')
-                    delimiter = ','
-                reader = csv.DictReader(rawlines, delimiter=delimiter)
-                for row in reader:
-                    result.append(os.path.join(row[dircol], row[filenamecol]))
+    def __init__(self, path):
+        self.path = path
+        with open(self.path, 'r') as f:
+            self.rawlines = [line.strip('\n') for line in f.readlines()]
+        markers = ["Key", "Filename", "KEY", "FILENAME"]
+        if self.rawlines[0] == "IBM Tivoli Storage Manager":
+            self.load_from_tsm()
+        elif any([marker in rawlines[0] for marker in markers]):
+            if '\t' in rawlines[0]:
+                self.delimiter = '\t'
             else:
-                print("Unrecognized file type ...")
+                self.delimiter = ','
+        else:
             if result:
                 filelists[filepath] = result
                 print(" => {0}: {1} files".format(filepath, len(result)))
             else:
                 print(" => File {0} has not been parsed.".format(filepath))
-'''
+
+    def load_from_tsm(self):
+        '''Data loading function for reading data from Tivoli 
+           Storage Manager Report'''
+        p = re.compile(r"^Normal File-->\W+([\d,]+)\W(\\{2}[^ ]+)\W\[Sent\]$")
+        results = []
+        for line in self.rawlines:
+            m = p.search(line)
+            if m:
+                bytes = int(m.group(1).replace(',', ''))
+                path = m.group(2)
+                a = Asset(path=path, bytes=bytes)
+                print(a)
+                results.append(a)
+        self.root = os.path.commonprefix([a.path for a in self])
+
+    def load_from_csv(self):
+        '''Alternate constructor for reading data from csv'''
+        for marker in markers:
+            if marker in rawlines[0]:
+                filenamecol = marker
+                if marker.isupper():
+                    dircol = "DIRECTORY"
+                else:
+                    dircol = "Directory"
+                break
+        reader = csv.DictReader(rawlines, delimiter=self.delimiter)
+        for row in reader:
+            result.append(os.path.join(row[dircol], row[filenamecol]))
+
