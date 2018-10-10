@@ -46,7 +46,7 @@ def compare(args):
                     delimiter = ','
                 reader = csv.DictReader(rawlines, delimiter=delimiter)
                 for row in reader:
-                    result.append(os.path.join(row[dircol], row[filenamecol]))
+                    result.append(row[filenamecol])
             else:
                 print("Unrecognized file type ...")
             if result:
