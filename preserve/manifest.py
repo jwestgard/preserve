@@ -11,8 +11,10 @@ class Manifest(list):
     def __init__(self, path):
         self.path = path
         if os.path.isdir(self.path):
+            self.source = "directory"
             self.read_from_dir()
         elif os.path.isfile(self.path):
+            self.source = "file"
             self.read_from_file()
         self.root = os.path.commonprefix([a.path for a in self])
 
@@ -22,13 +24,19 @@ class Manifest(list):
             self.rawlines = [line.strip('\n') for line in f]
             headline = self.rawlines[0]
             if headline == "IBM Tivoli Storage Manager":
+                self.format = "TSM"
                 self.parse_tsm()
             elif any([m in headline for m in self.CSV_MARKERS]):
-                self.delimiter = '\t' if '\t' in headline else ','
+                if '\t' in headline:
+                    self.format = "TSV"
+                    self.delimiter = '\t'
+                else:
+                    self.format = "CSV"
+                    self.delimiter = ','
                 self.parse_csv()
 
     def read_from_dir(self):
-        '''Reading files on disk and populate manifest'''
+        '''Read files on disk and populate manifest'''
         [self.append(Asset().from_filesystem(f)) for f in list_files(self.path)]
 
     def parse_tsm(self):

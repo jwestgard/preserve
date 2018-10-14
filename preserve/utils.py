@@ -56,4 +56,3 @@ def get_inventory(path):
         return result
     else:
         sys.exit("  => {0} could not be found!".format(path))
-        

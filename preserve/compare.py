@@ -19,7 +19,6 @@ def compare(args):
             sys.exit("{0} does not exist".format(path))
         else:
             m = Manifest(path)
-            print(m.root, len(m))
             asset_sets[path] = set(
                 [(os.path.relpath(a.path, m.root), a.bytes) for a in m]
                 )
@@ -27,7 +26,7 @@ def compare(args):
     # Report degree to which the inventories all match
     common = set.intersection(*asset_sets.values())
     print("{} values are common to all the supplied files:".format(
-            len(common)))
+                                                                len(common)))
 
     # Report the differences (if any) in the individual files
     for n, (path, asset_set) in enumerate(asset_sets.items()):

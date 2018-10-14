@@ -44,4 +44,4 @@ def bytecount(args):
             str(totalbytes), len(all_files)
             ))
 
-    print('({0}\n)'.format(", ".join(exts_summary)))
+    print('({0})\n'.format(", ".join(exts_summary)))
