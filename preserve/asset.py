@@ -19,7 +19,7 @@ class Asset():
     '''Class representing the metadata pertaining to an instance of
        a particular digital asset'''
     def __init__(self, **kwargs):
-        for k,v in kwargs.items():
+        for k, v in kwargs.items():
             setattr(self, k, v)
 
     @classmethod

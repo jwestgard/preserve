@@ -1,32 +1,38 @@
-from asset import Asset
 import csv
 import os
 import re
+from .asset import Asset
+from .utils import list_files
 
 class Manifest(list):
     '''Class representing a set of Asset objects in a particular 
        storage location'''
+    CSV_MARKERS = ["Key", "Filename", "KEY", "FILENAME"]
     def __init__(self, path):
         self.path = path
-        with open(self.path, 'r') as f:
-            self.rawlines = [line.strip('\n') for line in f.readlines()]
-        markers = ["Key", "Filename", "KEY", "FILENAME"]
-        if self.rawlines[0] == "IBM Tivoli Storage Manager":
-            self.load_from_tsm()
-        elif any([marker in rawlines[0] for marker in markers]):
-            if '\t' in rawlines[0]:
-                self.delimiter = '\t'
-            else:
-                self.delimiter = ','
-        else:
-            if result:
-                filelists[filepath] = result
-                print(" => {0}: {1} files".format(filepath, len(result)))
-            else:
-                print(" => File {0} has not been parsed.".format(filepath))
+        if os.path.isdir(self.path):
+            self.read_from_dir()
+        elif os.path.isfile(self.path):
+            self.read_from_file()
+        self.root = os.path.commonprefix([a.path for a in self])
 
-    def load_from_tsm(self):
-        '''Data loading function for reading data from Tivoli 
+    def read_from_file(self):
+        '''Examine input file and call appropriate parser'''
+        with open(self.path, 'r') as f:
+            self.rawlines = [line.strip('\n') for line in f]
+            headline = self.rawlines[0]
+            if headline == "IBM Tivoli Storage Manager":
+                self.parse_tsm()
+            elif any([m in headline for m in self.CSV_MARKERS]):
+                self.delimiter = '\t' if '\t' in headline else ','
+                self.parse_csv()
+
+    def read_from_dir(self):
+        '''Reading files on disk and populate manifest'''
+        [self.append(Asset().from_filesystem(f)) for f in list_files(self.path)]
+
+    def parse_tsm(self):
+        '''Data parser function for reading data from Tivoli 
            Storage Manager Report'''
         p = re.compile(r"^Normal File-->\W+([\d,]+)\W(\\{2}[^ ]+)\W\[Sent\]$")
         results = []
@@ -35,22 +41,15 @@ class Manifest(list):
             if m:
                 bytes = int(m.group(1).replace(',', ''))
                 path = m.group(2)
-                a = Asset(path=path, bytes=bytes)
-                print(a)
-                results.append(a)
-        self.root = os.path.commonprefix([a.path for a in self])
+                self.append(Asset(path=path, bytes=bytes))
 
-    def load_from_csv(self):
-        '''Alternate constructor for reading data from csv'''
-        for marker in markers:
-            if marker in rawlines[0]:
+    def parse_csv(self):
+        '''Data parser for reading data from csv'''
+        for marker in self.CSV_MARKERS:
+            if marker in self.rawlines[0]:
                 filenamecol = marker
-                if marker.isupper():
-                    dircol = "DIRECTORY"
-                else:
-                    dircol = "Directory"
+                dircol = "DIRECTORY" if marker.isupper() else "Directory"
                 break
-        reader = csv.DictReader(rawlines, delimiter=self.delimiter)
-        for row in reader:
-            result.append(os.path.join(row[dircol], row[filenamecol]))
+        for row in csv.DictReader(self.rawlines, delimiter=self.delimiter):
+            self.append(Asset().from_csv(**row))
 

@@ -22,7 +22,7 @@ def verify(args):
     total = len(all_keys)
 
     # Iterate over union of both file inventories
-    for n,k in enumerate(all_keys):
+    for n, k in enumerate(all_keys):
         if not k in dict_a:
             not_a.append(k)
         elif not k in dict_b:

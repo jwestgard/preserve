@@ -18,7 +18,6 @@ def inventory(args):
                   'EXTENSION', 'BYTES', 'MTIME', 
                   'MODDATE', 'MD5', 'SHA1', 'SHA256'
                   ]
-
     # Handle errors in the user-supplied paths
     if args.outfile:
         OUTFILE = os.path.abspath(args.outfile)
