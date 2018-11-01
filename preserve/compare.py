@@ -20,9 +20,8 @@ def compare(args):
         else:
             m = Manifest(path)
             asset_sets[path] = set(
-                [(os.path.relpath(a.path, m.root), a.bytes) for a in m]
+                [(os.path.relpath(a.path, m.root), str(a.bytes)) for a in m]
                 )
-            print(asset_sets)
 
     # Report degree to which the inventories all match
     common = set.intersection(*asset_sets.values())
