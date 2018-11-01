@@ -37,7 +37,8 @@ class Manifest(list):
 
     def read_from_dir(self):
         '''Read files on disk and populate manifest'''
-        [self.append(Asset().from_filesystem(f)) for f in list_files(self.path)]
+        for f in list_files(self.path):
+            self.append(Asset().from_filesystem(f))
 
     def parse_tsm(self):
         '''Data parser function for reading data from Tivoli 
@@ -60,4 +61,3 @@ class Manifest(list):
                 break
         for row in csv.DictReader(self.rawlines, delimiter=self.delimiter):
             self.append(Asset().from_csv(**row))
-
