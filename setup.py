@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='preserve',
-    version='0.3',
+    version='0.4',
     description='Command-line digital preservation utilities.',
     author='Joshua A. Westgard',
     author_email="westgard@umd.edu",
