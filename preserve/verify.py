@@ -24,8 +24,8 @@ def verify(args):
     not_b_filenames = [f for f in b_filenames if f not in a_filenames]
 
     print(" => Verifying by relative paths...")
-    a_relpaths = [os.path.relpath(asset.path, A.root) for asset in A]
-    b_relpaths = [os.path.relpath(asset.path, B.root) for asset in B]
+    a_relpaths = [asset.path.lstrip(A.root) for asset in A]
+    b_relpaths = [asset.path.lstrip(B.root) for asset in B]
     not_a_relpaths = [path for path in a_relpaths if path not in b_relpaths]
     not_b_relpaths = [path for path in b_relpaths if path not in a_relpaths]
 
