@@ -102,8 +102,20 @@ def main():
     # parser for the "verify" sub-command
     ver_parser = subparsers.add_parser(
                             'verify', aliases=['ver'],
-                            help='Verify checksums for two sets of files',
-                            description='Verify checksums.'
+                            help='Verify two sets of files',
+                            description='Verify checksums, relpaths, filenames.'
+                            )
+    ver_parser.add_argument('-c', '--checksums',
+                            help='Verify files by checksum',
+                            action='store_true'
+                            )
+    ver_parser.add_argument('-r', '--relpaths',
+                            help='Verify files by relative path',
+                            action='store_true'
+                            )                        
+    ver_parser.add_argument('-f', '--filenames',
+                            help='Verify files by filename',
+                            action='store_true'
                             )
     ver_parser.add_argument('first', 
                             help='first file or path'

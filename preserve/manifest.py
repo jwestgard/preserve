@@ -17,7 +17,11 @@ class Manifest(list):
         elif os.path.isfile(self.path):
             self.source = "file"
             self.read_from_file()
-        self.root = os.path.commonprefix([a.path for a in self])
+        common = os.path.commonprefix([a.path for a in self])
+        if common.endswith('/'):
+            self.root = common
+        else:
+            self.root = common.rsplit('/', 1)[0] 
 
     def read_from_file(self):
         '''Examine input file and call appropriate parser'''
