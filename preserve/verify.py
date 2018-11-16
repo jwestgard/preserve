@@ -36,8 +36,8 @@ def verify(args):
 
     if args.relpaths:
         print(" => Verifying by relative paths...")
-        a_relpaths = [re.sub(A.root, '', asset.path) for asset in A]
-        b_relpaths = [re.sub(B.root, '', asset.path) for asset in B]
+        a_relpaths = [asset.relpath for asset in A]
+        b_relpaths = [asset.relpath for asset in B]
         not_a_relpaths = [path for path in a_relpaths if path not in b_relpaths]
         not_b_relpaths = [path for path in b_relpaths if path not in a_relpaths]
         all_diffs.extend([not_a_relpaths, not_b_relpaths])

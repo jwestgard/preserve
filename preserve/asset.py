@@ -22,6 +22,15 @@ class Asset():
         for k, v in kwargs.items():
             setattr(self, k, v)
 
+    def is_matched_by(self, other):
+        criteria = [(self.md5 == other.md5),
+                    (self.bytes == other.bytes),
+                    (self.filename == other.filename),
+                    (self.relpath == other.relpath)
+                    ]
+        if all
+        
+
     @classmethod
     def from_csv(cls, **kwargs):
         '''Alternate constructor for reading data from inventory csv'''
