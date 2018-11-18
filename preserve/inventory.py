@@ -102,13 +102,15 @@ def inventory(args):
     # Write the existing portion of the inventory to the output file
     if OUTFILE:
         for entry in existing_entries:
-            writer.writerow({k.upper():v for (k,v) in entry.__dict__.items()})
+            writer.writerow({k.upper(): v for (k,v) in \
+                            entry.__dict__.items() if k.upper() in FIELDNAMES})
             count += 1
 
     # Check each (remaining) file and generate metadata
     for f in files_to_check:
         a = Asset().from_filesystem(f)
-        writer.writerow({k.upper(): v for k, v in a.__dict__.items()})
+        writer.writerow({k.upper(): v for k, v in \
+                        a.__dict__.items() if k.upper() in FIELDNAMES})
         count += 1  
         # Display a running counter
         sys.stderr.write(

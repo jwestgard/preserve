@@ -5,77 +5,75 @@ from .manifest import Manifest
 
 #=== SUBCOMMAND =============================================================
 #         NAME: verify
-#  DESCRIPTION: verify two sets of files (on disk or as recorded in CSV file) 
-#               by comparing filenames, relative paths, and checksums
+#  DESCRIPTION: Verify two sets of files (on disk or as recorded in CSV file)
+#               by comparing number of files, relative paths, and a file
+#               signature consisting of checksum + byte length. Attempt to
+#               reason about the nature of the diffrences and print a report
+#               about them to the console.
 #============================================================================
 
 def verify(args):
     '''Verify the identity of two inventories (either stored or created on 
        the fly), by checking for the presence of all files and comparing the 
        checksums of each one.'''
-    print(f"1. Loading data from {args.first}...")
-    A = Manifest(args.first)
-    print(f"2. Loading data from {args.second}...")
-    B = Manifest(args.second)
 
-    all_diffs = []
-    
-    # compare by specified criteria, default to checksum/bytes verification
-    if not any([args.filenames, args.relpaths, args.checksums]):
-        args.checksums = True
-        print(" => No verification criteria specified...")
-        print(" => Defaulting to checksum verification...")
+    # Create dictionary from each manifest with key = path and val = signature
+    print(f"A. Loading data from {args.first}...")
+    A = {asset.relpath: asset for asset in Manifest(args.first)}
+    a_paths = set(A.keys())
+    a_unique = set([(asset.md5, asset.bytes) for asset in A.values()])
+    print(f"   - A has {len(A)} assets, {len(a_unique)} of which are unique")
 
-    if args.filenames:
-        print(" => Verifying by filenames...")
-        a_filenames = [asset.filename for asset in A]
-        b_filenames = [asset.filename for asset in B]
-        not_a_filenames = [f for f in a_filenames if f not in b_filenames]
-        not_b_filenames = [f for f in b_filenames if f not in a_filenames]
-        all_diffs.extend([not_a_filenames, not_b_filenames])
+    print(f"B. Loading data from {args.second}...")
+    B = {asset.relpath: asset for asset in Manifest(args.second)}
+    b_paths = set(B.keys())
+    b_unique = set([(asset.md5, asset.bytes) for asset in B.values()])
+    print(f"   - B has {len(B)} assets, {len(b_unique)} of which are unique")
 
-    if args.relpaths:
-        print(" => Verifying by relative paths...")
-        a_relpaths = [asset.relpath for asset in A]
-        b_relpaths = [asset.relpath for asset in B]
-        not_a_relpaths = [path for path in a_relpaths if path not in b_relpaths]
-        not_b_relpaths = [path for path in b_relpaths if path not in a_relpaths]
-        all_diffs.extend([not_a_relpaths, not_b_relpaths])
+    # Sort all asset paths into their respective sets
+    relpaths_both   = a_paths.intersection(b_paths)
+    relpaths_only_a = a_paths.difference(b_paths)
+    relpaths_only_b = b_paths.difference(a_paths)
 
-    if args.checksums:
-        print(" => Verifying by md5 and length...")
-        a_checksums = set([(asset.md5, asset.bytes) for asset in A])
-        b_checksums = set([(asset.md5, asset.bytes) for asset in B])
-        not_a_checksums = a_checksums.difference(b_checksums)
-        not_b_checksums = b_checksums.difference(a_checksums)
-        all_diffs.extend([not_a_checksums, not_b_checksums])
+    # Check identity of paths present in both manifests
+    unchanged = {p for p in relpaths_both if A[p] == B[p]}
+    modified  = {p for p in relpaths_both if A[p] != B[p]}
 
-    # Report success or failure of verification criteria
-    if not any(all_diffs):
-        print("RESULT: Success! No differences found.")
+    # Examine asset paths present in one or the other, but not both, manifests
+    moved = {}
+    added = []
+    deleted = []
+    differences = []
+
+    for p in relpaths_only_a:
+        signature = (A[p].md5, A[p].bytes)
+        if signature not in b_unique:
+            deleted.append(p)
+        else:
+            moved.setdefault(signature, []).append(p)
+
+    for p in relpaths_only_b:
+        signature = (B[p].md5, B[p].bytes)
+        if signature not in a_unique:
+            added.append(p)
+        else:
+            moved.setdefault(signature, []).append(p)
+
+    # create a summary of all possible issues
+    if modified: differences.append(("asset(s) changed in place", modified))
+    if added:    differences.append(("asset(s) added to B", added))
+    if deleted:  differences.append(("asset(s) removed from A", deleted))
+    if moved:    differences.append(("asset(s) moved but unchanged", moved))
+
+    # Report results, sorting assets by nature of detected difference
+    if unchanged == relpaths_both and not any(differences):
+        print("=> SUCCESS! No differences found.")
     else:
-        print("RESULT: Possible problems were found.")
-        if not_a_filenames or not_b_filenames:
-            print(f" => {len(not_a_filenames)} filenames in #1 are not in #2")
-            for n, diff in enumerate(not_a_filenames, 1):
-                print(f"     ({n}) {diff}")
-            print(f" => {len(not_b_filenames)} filenames in #2 are not in #1")
-            for n, diff in enumerate(not_b_filenames, 1):
-                print(f"     ({n}) {diff}")
-        if not_a_relpaths or not_b_relpaths:
-            print(f" => {len(not_a_relpaths)} paths in #1 are not in #2")
-            for n, diff in enumerate(not_a_relpaths, 1):
-                print(f"     ({n}) {diff}")
-            print(f" => {len(not_b_relpaths)} paths in #2 are not in #1")
-            for n, diff in enumerate(not_b_relpaths, 1):
-                print(f"     ({n}) {diff}")
-        if not_a_checksums or not_b_checksums:
-            print(f" => {len(not_a_checksums)} checksums in #1 are not in #2")
-            for n, diff in enumerate(not_a_checksums, 1):
-                filename = [a.filename for a in A if (a.md5, a.bytes) == diff]
-                print(f"     ({n}) {diff}: {filename}")
-            print(f" => {len(not_b_checksums)} checksums in #2 are not in #1")
-            for n, diff in enumerate(not_b_checksums, 1):
-                filename = [a.filename for a in B if (a.md5, a.bytes) == diff]
-                print(f"     ({n}) {diff}: {filename}")
-print()
+        print("=> Check complete! But possible problems were found.")
+        for diff in differences:
+            print(f"=> {len(diff[1])} {diff[0]}:")
+            for n, asset in enumerate(sorted(diff[1]), 1):
+                print(f"   ({n}) {asset}")
+                if type(diff[1]) == dict:
+                    print(f"       {' --> '.join(diff[1][asset])}")
+
