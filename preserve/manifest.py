@@ -46,14 +46,14 @@ class Manifest(list):
     def parse_tsm(self):
         '''Data parser function for reading data from Tivoli 
            Storage Manager Report'''
-        r = r"^Normal File-->\W+([\d,]+)\W(\\{2}[^ ]+\$\\)([^ ]+)\W\[Sent\]$"
+        r = r"Normal File-->\W+([\d,]+)\W(\\.+) \[Sent\]$"
         p = re.compile(r)
         results = []
         for line in self.rawlines:
             m = p.search(line)
             if m:
                 bytes = int(m.group(1).replace(',', ''))
-                path = m.group(3).replace('\\', '/')
+                path = m.group(2).replace('\\', '/')
                 self.append(Asset(path=path, bytes=bytes))
 
     def parse_csv(self):

@@ -20,7 +20,7 @@ def compare(args):
         else:
             m = Manifest(path)
             asset_sets[path] = set(
-                [(os.path.relpath(a.path, m.root), str(a.bytes)) for a in m]
+                [(os.path.relpath(('/' + a.path), m.root), str(a.bytes)) for a in m]
                 )
 
     # Report degree to which the inventories all match
@@ -38,4 +38,3 @@ def compare(args):
             for n, (relpath, bytes) in enumerate(sorted_files):
                 print("     ({0}) {1} -- {2} bytes".format(n+1, relpath, bytes))
     print('')
-
