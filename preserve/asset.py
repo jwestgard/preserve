@@ -37,11 +37,18 @@ class Asset():
     def from_csv(cls, **kwargs):
         '''Alternate constructor for reading data from inventory csv'''
         values = {}
+        mapping = {
+            'Data': 'md5',
+            'Key': 'filename'
+            }
         for k, v in kwargs.items():
-            values[k.lower()] = v
+            if k in mapping:
+                values[mapping[k].lower()] = v
+            else:
+                values[k.lower()] = v
         if not hasattr(values, 'path'):
-            values['path'] = os.path.join(values['directory'],
-                                          values['filename'])
+            values['path'] = os.path.join(values.get('directory', ''),
+                                          values.get('filename'))
         return cls(**values)
 
     @classmethod
