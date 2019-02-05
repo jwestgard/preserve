@@ -14,14 +14,20 @@ def compare(args):
     '''Compare asset manifests checking for the presence of assets only'''
     asset_sets = {}
     all_paths = [args.first] + args.other 
-    for path in all_paths:
-        if not os.path.exists(path):
-            sys.exit("{0} does not exist".format(path))
+    for manifest_file in all_paths:
+        if not os.path.exists(manifest_file):
+            sys.exit("{0} does not exist".format(manifest_file))
         else:
-            m = Manifest(path)
-            asset_sets[path] = set(
-                [(os.path.relpath(('/' + a.path), m.root), str(a.bytes)) for a in m]
-                )
+            m = Manifest(manifest_file)
+            if args.relpath:
+                s = set()
+                for a in m:
+                    relpath = os.path.relpath(('/' + a.path), m.root)
+                    bytes = str(a.bytes)
+                    for a in m: s.add((relpath, bytes))
+            else:
+                s = set([(a.filename, str(a.bytes)) for a in m])
+            asset_sets[manifest_file] = s
 
     # Report degree to which the inventories all match
     common = set.intersection(*asset_sets.values())

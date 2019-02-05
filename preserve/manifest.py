@@ -54,7 +54,8 @@ class Manifest(list):
             if m:
                 bytes = int(m.group(1).replace(',', ''))
                 path = m.group(2).replace('\\', '/')
-                self.append(Asset(path=path, bytes=bytes))
+                filename = os.path.basename(path)
+                self.append(Asset(path=path, filename=filename, bytes=bytes))
 
     def parse_csv(self):
         '''Data parser for reading data from csv'''

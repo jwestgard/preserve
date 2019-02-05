@@ -91,6 +91,10 @@ def main():
                             help='Compare two or more inventories',
                             description='Compare contents of file inventories.'
                             )
+    comp_parser.add_argument('-r', '--relpath',
+                            help='compare by relative paths',
+                            action='store_true'
+                            )
     comp_parser.add_argument('first', 
                             help='first file'
                             )
