@@ -83,6 +83,10 @@ def main():
                             help='path to (existing) output file',
                             action='store'
                             )
+    inv_parser.add_argument('-a', '--algorithms',
+                            help='hash algorithms to run',
+                            action='store'
+                            )
     inv_parser.set_defaults(func=inventory)
 
     # parser for the "compare" sub-command

@@ -55,7 +55,7 @@ class Asset():
         return cls(**values)
 
     @classmethod
-    def from_filesystem(cls, path, hash_algs=['md5','sha1','sha256']):
+    def from_filesystem(cls, path, *args):
         '''Alternate constructor for reading attributes from file'''
         if not os.path.isfile(path):
             raise TypeError
@@ -70,6 +70,6 @@ class Asset():
                 }
             values['moddate'] = dt.fromtimestamp(values['mtime']).strftime(
                                                            '%Y-%m-%dT%H:%M:%S')
-            for algorithm in hash_algs:
+            for algorithm in args:
                 values[algorithm] = calculate_hash(path, algorithm)
         return cls(**values)
