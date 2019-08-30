@@ -34,12 +34,15 @@ class Asset():
             return False
 
     @classmethod
-    def from_csv(cls, **kwargs):
+    def from_csv(cls, sha1=None, sha256=None, **kwargs):
         '''Alternate constructor for reading data from inventory csv'''
         values = {}
         mapping = {
+            'Other': 'md5',
             'Data': 'md5',
-            'Key': 'filename'
+            'Key': 'filename',
+            'Size': 'bytes',
+            'Type': 'extension'
             }
         for k, v in kwargs.items():
             if k in mapping:
