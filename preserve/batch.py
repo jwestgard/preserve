@@ -94,7 +94,8 @@ def main():
     for result in results:
         args = CommandArgs({'path': os.path.join(INDIR, result.dirname),
                             'outfile': None,
-                            'existing': None
+                            'existing': None,
+                            'algorithms': 'md5'
                             })
         outpath = os.path.join(OUTDIR, result.dirname + '.csv')
         if os.path.isfile(outpath):
@@ -104,7 +105,8 @@ def main():
 
         # Call the inventory subcommand generated args
         result = inventory(args)
-        sys.stderr.write(result + '\n')
+        if result:
+            sys.stderr.write(result + '\n')
 
 
 if __name__ == "__main__":

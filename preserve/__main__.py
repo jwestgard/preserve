@@ -136,7 +136,10 @@ def main():
     # parse the args and call the default sub-command function
     args = parser.parse_args()
     print_header(args.func.__name__)
-    args.func(args)
+    result = args.func(args)
+    if result:
+        sys.stderr.write(result)
+        sys.stderr.write('\n\n')
 
 if __name__ == "__main__":
     main()

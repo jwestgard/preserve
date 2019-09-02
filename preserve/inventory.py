@@ -66,7 +66,7 @@ def inventory(args):
                 *(e.__dict__.keys() for e in existing_entries)
                 )
             # if the CSV file conforms to the pattern
-            all_keys.remove('relpath')
+            all_keys.discard('relpath')
             if all_keys.issubset([fname.lower() for fname in FIELDNAMES]):
                 files_done = [
                     os.path.join(f.directory, f.filename) \
@@ -114,7 +114,7 @@ def inventory(args):
     if args.algorithms:
         algs_to_run = args.algorithms.split(',')
         if any([alg not in known_algs for alg in algs_to_run]):
-            sys.exit(
+            return (
                 "ERROR: Unknown hash algorithm specified.\n\n"
                 )
     else:
@@ -131,6 +131,6 @@ def inventory(args):
             )
 
     # Clear the counter, report results, and close file handle
-    return '\nInventory complete!\n'
+    sys.stderr.write('\nInventory complete!\n\n')
     fh.close()
 
