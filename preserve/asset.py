@@ -34,18 +34,28 @@ class Asset():
             return False
 
     @classmethod
-    def from_csv(cls, **kwargs):
+    def from_csv(cls, sha1=None, sha256=None, **kwargs):
         '''Alternate constructor for reading data from inventory csv'''
         values = {}
+        mapping = {
+            'Other': 'md5',
+            'Data': 'md5',
+            'Key': 'filename',
+            'Size': 'bytes',
+            'Type': 'extension'
+            }
         for k, v in kwargs.items():
-            values[k.lower()] = v
+            if k in mapping:
+                values[mapping[k].lower()] = v
+            else:
+                values[k.lower()] = v
         if not hasattr(values, 'path'):
-            values['path'] = os.path.join(values['directory'],
-                                          values['filename'])
+            values['path'] = os.path.join(values.get('directory', ''),
+                                          values.get('filename'))
         return cls(**values)
 
     @classmethod
-    def from_filesystem(cls, path, hash_algs=['md5','sha1','sha256']):
+    def from_filesystem(cls, path, *args):
         '''Alternate constructor for reading attributes from file'''
         if not os.path.isfile(path):
             raise TypeError
@@ -60,6 +70,6 @@ class Asset():
                 }
             values['moddate'] = dt.fromtimestamp(values['mtime']).strftime(
                                                            '%Y-%m-%dT%H:%M:%S')
-            for algorithm in hash_algs:
+            for algorithm in args:
                 values[algorithm] = calculate_hash(path, algorithm)
         return cls(**values)

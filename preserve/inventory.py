@@ -109,9 +109,19 @@ def inventory(args):
                             entry.__dict__.items() if k.upper() in FIELDNAMES})
             count += 1
 
+    # Determine the set of hash algorithms to run
+    known_algs = ['md5', 'sha1', 'sha256']
+    if args.algorithms:
+        algs_to_run = args.algorithms.split(',')
+        if any([alg not in known_algs for alg in algs_to_run]):
+            sys.exit(
+                "ERROR: Unknown hash algorithm specified.\n\n"
+                )
+    else:
+        algs_to_run = known_algs
     # Check each (remaining) file and generate metadata
     for f in files_to_check:
-        a = Asset().from_filesystem(f)
+        a = Asset().from_filesystem(f, *algs_to_run)
         writer.writerow({k.upper(): v for k, v in \
                         a.__dict__.items() if k.upper() in FIELDNAMES})
         count += 1  
