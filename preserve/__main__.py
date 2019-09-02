@@ -41,7 +41,7 @@ def main():
     parser.add_argument('-v', '--version', 
                         action='version', 
                         help='Print version number and exit',
-                        version='%(prog)s 0.4'
+                        version='%(prog)s 0.5'
                         )
     subparsers.required = True
 
