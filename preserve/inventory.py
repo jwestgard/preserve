@@ -12,9 +12,11 @@ from .utils import list_files
 #============================================================================
 
 def inventory(args):
+
     '''Create a CSV inventory of file metadata for files in 
        a specified path.'''
-    FIELDNAMES = ['PATH', 'DIRECTORY', 'FILENAME', 
+
+    FIELDNAMES = ['PATH', 'DIRECTORY', 'FILENAME',
                   'EXTENSION', 'BYTES', 'MTIME', 
                   'MODDATE', 'MD5', 'SHA1', 'SHA256'
                   ]
@@ -22,20 +24,20 @@ def inventory(args):
     if args.outfile:
         OUTFILE = os.path.abspath(args.outfile)
         if os.path.isfile(OUTFILE):
-            sys.exit(
+            return (
                 "ERROR: The output file exists. " +
-                "Use the -e flag to resume the job.\n\n"
+                "Use the -e flag to resume the job.\n"
                 )
         elif os.path.isdir(OUTFILE):
-            sys.exit(
-                "ERROR: The specified output path is a directory.\n\n"
+            return (
+                "ERROR: The specified output path is a directory.\n"
                 )
     elif args.existing:
         OUTFILE = os.path.abspath(args.existing)
         if not os.path.isfile(OUTFILE):
-            sys.exit(
+            return (
                 "ERROR: Must specify the path " +
-                "to an existing inventory file.\n\n"
+                "to an existing inventory file.\n"
                 )
     else:
         OUTFILE = None
@@ -44,8 +46,8 @@ def inventory(args):
     if os.path.exists(args.path):
         PATH = os.path.abspath(args.path)
     else:
-        sys.exit(
-            "ERROR: The specified search path does not exist.\n\n"
+        return (
+            "ERROR: The specified search path does not exist.\n"
             )
 
     # Get a list of all files in the search path.
@@ -64,6 +66,7 @@ def inventory(args):
                 *(e.__dict__.keys() for e in existing_entries)
                 )
             # if the CSV file conforms to the pattern
+            all_keys.remove('relpath')
             if all_keys.issubset([fname.lower() for fname in FIELDNAMES]):
                 files_done = [
                     os.path.join(f.directory, f.filename) \
@@ -71,23 +74,23 @@ def inventory(args):
                     ]
                 # Handle a complete inventory ...
                 if files_done == files_to_check:
-                    sys.exit(
-                        "Inventory is already complete.\n\n"
+                    return (
+                        "Inventory is already complete.\n"
                         )
                 # or an erroneous partial inventory
                 elif set(files_done).difference(files_to_check):
-                    sys.exit(
+                    return (
                         "ERROR: Existing file contains references " +
                         "to files that are not found in the path " +
-                        "being inventoried.\n\n"
+                        "being inventoried.\n"
                         )
                 # Create the set of remaining files to be checked
                 files_to_check = set(all_files).difference(files_done)
             # Handle non-conforming CSV file
             else:
-                sys.exit(
-                    "ERROR: The specified output file is not a correctly" +
-                    "formatted inventory CSV.\n\n"
+                return (
+                    "ERROR: The specified output file is not a correctly " +
+                    "formatted inventory CSV.\n"
                     )
         # open line-buffered file handle
         fh = open(OUTFILE, 'w+', 1)
@@ -118,7 +121,6 @@ def inventory(args):
             )
 
     # Clear the counter, report results, and close file handle
-    sys.stderr.write('\n')
-    sys.stderr.write('Inventory complete!\n\n')
+    return '\nInventory complete!\n'
     fh.close()
 

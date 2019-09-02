@@ -11,7 +11,8 @@ setup(
     url="http://github.com/jwestgard/preserve",
     packages=find_packages(),
     entry_points = {
-        'console_scripts': ['preserve=preserve.__main__:main']
+        'console_scripts': ['preserve=preserve.__main__:main',
+                            'preserve.batch=preserve.batch:main']
         },
     install_requires=[i.strip() for i in open("requirements.txt").readlines()]
 )
