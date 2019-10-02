@@ -1,0 +1,5 @@
+INPUT_ROOT:   /home/jwestgard/Desktop/batch_testing/test_data
+OUTPUT_ROOT:  /home/jwestgard/Desktop/batch_testing/test_output
+MANIFEST:     /home/jwestgard/Desktop/batch_testing/manifest.csv
+EXCLUDES:
+    - 'batch1'
