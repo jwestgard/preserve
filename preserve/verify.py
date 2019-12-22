@@ -8,7 +8,7 @@ from .manifest import Manifest
 #  DESCRIPTION: Verify two sets of files (on disk or as recorded in CSV file)
 #               by comparing number of files, relative paths, and a file
 #               signature consisting of checksum + byte length. Attempt to
-#               reason about the nature of the diffrences and print a report
+#               reason about the nature of the differences and print a report
 #               about them to the console.
 #============================================================================
 
