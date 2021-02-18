@@ -2,18 +2,20 @@ from datetime import datetime as dt
 import hashlib
 import os
 
-def calculate_hash(path, alg):
-    '''Given a path to a file and a hash algorithm, calculate and 
-       return the hash digest of the file'''
-    hash = getattr(hashlib, alg)()
+
+def calculate_hashes(path, algorithms):
+    '''Given a path to a file and a list of hash algorithms, calculate and 
+       return a dictionary of the requested digests of the file'''
+    hashes = [(alg, getattr(hashlib, alg)()) for alg in algorithms]
     with open(path, 'rb') as f:
         while True:
             data = f.read(8192)
             if not data:
                 break
             else:
-                hash.update(data)
-        return hash.hexdigest()
+                [hash.update(data) for (alg, hash) in hashes]
+    return {alg: hash.hexdigest() for (alg, hash) in hashes}
+
 
 class Asset():
     '''Class representing the metadata pertaining to an instance of
@@ -70,6 +72,6 @@ class Asset():
                 }
             values['moddate'] = dt.fromtimestamp(values['mtime']).strftime(
                                                            '%Y-%m-%dT%H:%M:%S')
-            for algorithm in args:
-                values[algorithm] = calculate_hash(path, algorithm)
+            for algorithm, hash in calculate_hashes(path, args).items():
+                values[algorithm] = hash
         return cls(**values)

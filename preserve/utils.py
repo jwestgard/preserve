@@ -3,6 +3,7 @@ import os
 import sys
 from .asset import Asset
 
+
 def human_readable(bytes):
     '''Return human-readable version of a given number of bytes plus the units,
        rounding to two decimal places for scales in KiB and larger.'''
@@ -19,6 +20,7 @@ def human_readable(bytes):
             return(scaled, orders_mag[n])
     return False
 
+
 def list_files(dir_path):
     '''Return a list of files in a directory tree, pruning out the 
        hidden files & dirs (i.e. those that begin with dot).'''
@@ -30,6 +32,7 @@ def list_files(dir_path):
         files[:] = [f for f in files if not f.startswith('.')]
         result.extend([os.path.join(root, f) for f in files])
     return result
+
 
 def get_inventory(path):
     '''Given a path to a file or directory, return list of inventory metadata
