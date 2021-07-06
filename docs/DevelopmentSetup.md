@@ -47,3 +47,14 @@ Once "pyenv" and "pyenv-virtualenv" have been installed, install Python 3.7.10:
 ```
 > pip install -e .[dev,test]
 ```
+
+
+## Code Style
+
+Application code style should generally conform to the guidelines in
+[PEP 8](https://www.python.org/dev/peps/pep-0008/). The "pycodestyle" tool
+to check compliance with the guidelines can be run using:
+
+```
+> pycodestyle .
+```

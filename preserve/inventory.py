@@ -6,18 +6,18 @@ from .utils import get_inventory
 from .utils import list_files
 
 
-#=== SUBCOMMAND =============================================================
+# === SUBCOMMAND =============================================================
 #         NAME: inventory
 #  DESCRIPTION: Generates a file listing with checksum, file size, timestamp
-#============================================================================
+# ============================================================================
 
 def inventory(args):
 
-    '''Create a CSV inventory of file metadata for files in 
+    '''Create a CSV inventory of file metadata for files in
        a specified path.'''
 
     FIELDNAMES = ['PATH', 'DIRECTORY', 'FILENAME',
-                  'EXTENSION', 'BYTES', 'MTIME', 
+                  'EXTENSION', 'BYTES', 'MTIME',
                   'MODDATE', 'MD5', 'SHA1', 'SHA256'
                   ]
     # Handle errors in the user-supplied paths
@@ -69,8 +69,7 @@ def inventory(args):
             all_keys.discard('relpath')
             if all_keys.issubset([fname.lower() for fname in FIELDNAMES]):
                 files_done = [
-                    os.path.join(f.directory, f.filename) \
-                    for f in existing_entries
+                    os.path.join(f.directory, f.filename) for f in existing_entries
                     ]
                 # Handle a complete inventory ...
                 if files_done == files_to_check:
@@ -105,7 +104,7 @@ def inventory(args):
     # Write the existing portion of the inventory to the output file
     if OUTFILE:
         for entry in existing_entries:
-            writer.writerow({k.upper(): v for (k,v) in \
+            writer.writerow({k.upper(): v for (k, v) in
                             entry.__dict__.items() if k.upper() in FIELDNAMES})
             count += 1
 
@@ -122,9 +121,9 @@ def inventory(args):
     # Check each (remaining) file and generate metadata
     for f in files_to_check:
         a = Asset().from_filesystem(f, *algs_to_run)
-        writer.writerow({k.upper(): v for k, v in \
+        writer.writerow({k.upper(): v for k, v in
                         a.__dict__.items() if k.upper() in FIELDNAMES})
-        count += 1  
+        count += 1
         # Display a running counter
         sys.stderr.write(
             "\rFiles checked: {0}/{1}".format(count, total)
@@ -133,4 +132,3 @@ def inventory(args):
     # Clear the counter, report results, and close file handle
     sys.stderr.write('\nInventory complete!\n\n')
     fh.close()
-

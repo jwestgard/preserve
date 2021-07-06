@@ -16,28 +16,28 @@ def parse_args():
         )
 
     parser.add_argument(
-        'source', 
-        help='Root directory to be partitioned', 
+        'source',
+        help='Root directory to be partitioned',
         action='store'
         )
 
     parser.add_argument(
-        'destination', 
-        help='Output directory (if exists, must be empty)', 
+        'destination',
+        help='Output directory (if exists, must be empty)',
         action='store'
         )
 
     parser.add_argument(
         '-m', '--mode',
         choices=['copy', 'move', 'dryrun'],
-        help='Dryrun, move, or copy files to destination', 
+        help='Dryrun, move, or copy files to destination',
         action='store',
         default='dryrun'
         )
 
     parser.add_argument(
-        '-v', '--version', 
-        action='version', 
+        '-v', '--version',
+        action='version',
         help='Print version number and exit',
         version='%(prog)s 0.1'
         )
@@ -87,7 +87,7 @@ def main():
 
         """ (3) Create FileSet """
         fileset = FileSet.from_filesystem(args.source)
-        print(f"\nAnalyzing files: {len(fileset)} files, " + \
+        print(f"\nAnalyzing files: {len(fileset)} files, " +
               f"{round(fileset.bytes/2**30, 2)} GiB")
 
         """ (4) Create partition map """

@@ -15,20 +15,20 @@ def parse_args():
         )
 
     parser.add_argument(
-        'path', 
-        help='Root directory to be bagged', 
+        'path',
+        help='Root directory to be bagged',
         action='store'
         )
 
     parser.add_argument(
         '-c', '--config',
-        help='Path to a config file containing tag info', 
+        help='Path to a config file containing tag info',
         action='store'
         )
 
     parser.add_argument(
-        '-v', '--version', 
-        action='version', 
+        '-v', '--version',
+        action='version',
         help='Print version number and exit',
         version='%(prog)s 0.1'
         )

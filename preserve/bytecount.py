@@ -1,13 +1,14 @@
 from .utils import get_inventory
 from .utils import human_readable
 
-#=== SUBCOMMAND =============================================================
+# === SUBCOMMAND =============================================================
 #         NAME: bytecount
 #  DESCRIPTION: count files by extention and sum their sizes
-#============================================================================
+# ============================================================================
+
 
 def bytecount(args):
-    '''Sum the bytes in an inventory file or a directory tree, reporting total 
+    '''Sum the bytes in an inventory file or a directory tree, reporting total
        bytes and number of files broken down by extension.'''
     PATH = args.path
     print("Loading data from specified path...")
@@ -38,7 +39,7 @@ def bytecount(args):
         count_num, count_units = human_readable(totalbytes)
         print('{0} bytes ({1} {2}) for {3} files.'.format(
             str(totalbytes), count_num, count_units, len(all_files)
-            ))       
+            ))
     else:
         print('{0} bytes for {1} files.'.format(
             str(totalbytes), len(all_files)

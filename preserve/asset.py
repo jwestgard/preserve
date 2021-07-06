@@ -4,7 +4,7 @@ import os
 
 
 def calculate_hashes(path, algorithms):
-    '''Given a path to a file and a list of hash algorithms, calculate and 
+    '''Given a path to a file and a list of hash algorithms, calculate and
        return a dictionary of the requested digests of the file'''
     hashes = [(alg, getattr(hashlib, alg)()) for alg in algorithms]
     with open(path, 'rb') as f:
@@ -26,13 +26,12 @@ class Asset():
             setattr(self, k, v)
 
     def __eq__(self, other):
-        if all([(self.md5 == other.md5), 
+        if all([(self.md5 == other.md5),
                 (self.bytes == other.bytes),
-                (self.filename == other.filename), 
-                (self.relpath == other.relpath)]
-                ): 
+                (self.filename == other.filename),
+                (self.relpath == other.relpath)]):
             return True
-        else: 
+        else:
             return False
 
     @classmethod

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 import argparse
 import sys
@@ -10,9 +10,9 @@ from .inventory import inventory
 from .verify import verify
 
 
-#============================================================================
-# HELPER FUNCTIONS 
-#============================================================================
+# ============================================================================
+# HELPER FUNCTIONS
+# ============================================================================
 
 def print_header(subcommand):
     '''Format and print a common header for each subcommand.'''
@@ -22,9 +22,9 @@ def print_header(subcommand):
         )
 
 
-#============================================================================
+# ============================================================================
 # MAIN FUNCTION
-#============================================================================
+# ============================================================================
 
 def main():
     '''Parse args and set the chosen sub-command as the default function.'''
@@ -34,7 +34,7 @@ def main():
         description='Digital preservation utilities.'
         )
     subparsers = parser.add_subparsers(
-        title='subcommands', description='valid subcommands', 
+        title='subcommands', description='valid subcommands',
         help='-h additional help', metavar='{bc,inv,comp,ver}', dest='cmd'
         )
     parser.add_argument(
@@ -112,7 +112,7 @@ def main():
         )
     ver_parser.add_argument(
         '-r', '--relpaths', help='Verify files by relative path', action='store_true'
-        )                        
+        )
     ver_parser.add_argument(
         '-f', '--filenames', help='Verify files by filename', action='store_true'
         )
@@ -127,6 +127,7 @@ def main():
     if result:
         sys.stderr.write(result)
         sys.stderr.write('\n\n')
+
 
 if __name__ == "__main__":
     main()

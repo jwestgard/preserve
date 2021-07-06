@@ -37,9 +37,8 @@ def table_format(results):
     table = [border, header, border]
     for num, dir in enumerate(results, 1):
         table.append(pattern.format(n=str(num).zfill(len(str(len(results)))),
-            d=dir.dirname, f=dir.filecount, b=dir.bytecount, h=dir.humanread,
-            s=dir.status
-            ))
+                     d=dir.dirname, f=dir.filecount, b=dir.bytecount, h=dir.humanread,
+                     s=dir.status))
     table.extend([border, '\n'])
     return '\n'.join(table)
 
@@ -49,7 +48,7 @@ class Directory():
     '''Class representing a directory to be scanned in a batch process'''
 
     def __init__(self, path, dirname=None, filecount=None, bytecount=None,
-                humanread=None, status=None):
+                 humanread=None, status=None):
         self.path = path
         self.status = status or 'ToDo'
         self.dirname = dirname or os.path.basename(path)
@@ -91,8 +90,8 @@ def main():
     with open(sys.argv[1]) as handle:
         config = yaml.safe_load(handle)
 
-    INDIR    = os.path.abspath(config['INPUT_ROOT'])
-    OUTDIR   = os.path.abspath(config['OUTPUT_ROOT'])
+    INDIR = os.path.abspath(config['INPUT_ROOT'])
+    OUTDIR = os.path.abspath(config['OUTPUT_ROOT'])
     EXCLUDES = config['EXCLUDES']
     MANIFEST = config['MANIFEST']
 

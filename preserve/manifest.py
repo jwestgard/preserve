@@ -5,10 +5,12 @@ import re
 from .asset import Asset
 from .utils import list_files
 
+
 class Manifest(list):
-    '''Class representing a set of Asset objects in a particular 
+    '''Class representing a set of Asset objects in a particular
        storage location'''
     CSV_MARKERS = ["Key", "Filename", "KEY", "FILENAME"]
+
     def __init__(self, path):
         self.path = path
         if os.path.isdir(self.path):
@@ -44,7 +46,7 @@ class Manifest(list):
             self.append(Asset().from_filesystem(f))
 
     def parse_tsm(self):
-        '''Data parser function for reading data from Tivoli 
+        '''Data parser function for reading data from Tivoli
            Storage Manager Report'''
         r = r"Normal File-->\W+([\d,]+)\W(\\.+) \[Sent\]$"
         p = re.compile(r)

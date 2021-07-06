@@ -22,7 +22,7 @@ def human_readable(bytes):
 
 
 def list_files(dir_path):
-    '''Return a list of files in a directory tree, pruning out the 
+    '''Return a list of files in a directory tree, pruning out the
        hidden files & dirs (i.e. those that begin with dot).'''
     result = []
     for root, dirs, files in os.walk(dir_path):
