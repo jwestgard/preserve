@@ -64,3 +64,6 @@ target/
 # System Files
 .DS_Store
 preserve/.DS_Store
+
+# VS Code configuration directory
+.vscode/
