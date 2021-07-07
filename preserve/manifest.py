@@ -43,7 +43,7 @@ class Manifest(list):
     def read_from_dir(self):
         '''Read files on disk and populate manifest'''
         for f in list_files(self.path):
-            self.append(Asset().from_filesystem(f))
+            self.append(Asset().from_filesystem(f, self.root))
 
     def parse_tsm(self):
         '''Data parser function for reading data from Tivoli

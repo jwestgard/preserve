@@ -56,16 +56,21 @@ class Asset():
         return cls(**values)
 
     @classmethod
-    def from_filesystem(cls, path, *args):
+    def from_filesystem(cls, path, base_path='/', *args):
         '''Alternate constructor for reading attributes from file'''
         if not os.path.isfile(path):
             raise TypeError
         else:
+            reldir = os.path.relpath(os.path.dirname(path), base_path)
+            filename = os.path.basename(path)
+            relpath = os.path.join(reldir, filename)
+
             values = {
                 'path':      os.path.abspath(path),
                 'mtime':     int(os.path.getmtime(path)),
                 'directory': os.path.dirname(path),
-                'filename':  os.path.basename(path),
+                'relpath':   relpath,
+                'filename':  filename,
                 'bytes':     os.path.getsize(path),
                 'extension': os.path.splitext(path)[1].lstrip('.').upper()
                 }

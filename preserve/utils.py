@@ -53,7 +53,7 @@ def get_inventory(path):
         result = []
         for n, f in enumerate(list_files(path)):
             print("  => found {0} files.".format(n+1), end='\r')
-            a = Asset.from_filesystem(f)
+            a = Asset.from_filesystem(f, path)
             result.append(a)
         print()
         return result

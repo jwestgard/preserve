@@ -16,7 +16,7 @@ def inventory(args):
     '''Create a CSV inventory of file metadata for files in
        a specified path.'''
 
-    FIELDNAMES = ['PATH', 'DIRECTORY', 'FILENAME',
+    FIELDNAMES = ['PATH', 'DIRECTORY', 'RELPATH', 'FILENAME',
                   'EXTENSION', 'BYTES', 'MTIME',
                   'MODDATE', 'MD5', 'SHA1', 'SHA256'
                   ]
@@ -120,7 +120,7 @@ def inventory(args):
         algs_to_run = known_algs
     # Check each (remaining) file and generate metadata
     for f in files_to_check:
-        a = Asset().from_filesystem(f, *algs_to_run)
+        a = Asset().from_filesystem(f, PATH, *algs_to_run)
         writer.writerow({k.upper(): v for k, v in
                         a.__dict__.items() if k.upper() in FIELDNAMES})
         count += 1
