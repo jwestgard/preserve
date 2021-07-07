@@ -18,16 +18,17 @@ def test_inventory_stdout(capsys, tmp_path):
     temp_file = create_temp_file(temp_file_path, filename, "Test File1234")
     expected = generate_expected_values(temp_file)
 
-    inventory_args = argparse.Namespace(outfile=None, existing=None, path=str(tmp_path), algorithms=None)
+    batch = "TEST_BATCH"
+    inventory_args = argparse.Namespace(batch=batch, outfile=None, existing=None, path=str(tmp_path), algorithms=None)
     inventory(inventory_args)
 
     captured = capsys.readouterr()
 
     expected_rel_path = os.path.join(subdirectory, filename)
-    expected_header = 'PATH,DIRECTORY,RELPATH,FILENAME,EXTENSION,BYTES,MTIME,MODDATE,MD5,SHA1,SHA256'
-    expected_file_line = f"{expected['path']},{expected['directory']},{expected_rel_path},{expected['filename']}," +\
-                         f"{expected['extension']},{expected['bytes']},{expected['mtime']},{expected['moddate']}," +\
-                         f"{expected['md5']},{expected['sha1']},{expected['sha256']}"
+    expected_header = 'BATCH,PATH,DIRECTORY,RELPATH,FILENAME,EXTENSION,BYTES,MTIME,MODDATE,MD5,SHA1,SHA256'
+    expected_file_line = f"{batch},{expected['path']},{expected['directory']},{expected_rel_path}," +\
+                         f"{expected['filename']},{expected['extension']},{expected['bytes']},{expected['mtime']}," +\
+                         f"{expected['moddate']},{expected['md5']},{expected['sha1']},{expected['sha256']}"
     stdout_lines = captured.out.split(csv.Dialect.lineterminator)
     assert stdout_lines[0] == expected_header
     assert stdout_lines[1] == expected_file_line

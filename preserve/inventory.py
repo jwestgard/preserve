@@ -16,10 +16,12 @@ def inventory(args):
     '''Create a CSV inventory of file metadata for files in
        a specified path.'''
 
-    FIELDNAMES = ['PATH', 'DIRECTORY', 'RELPATH', 'FILENAME',
+    FIELDNAMES = ['BATCH', 'PATH', 'DIRECTORY', 'RELPATH', 'FILENAME',
                   'EXTENSION', 'BYTES', 'MTIME',
                   'MODDATE', 'MD5', 'SHA1', 'SHA256'
                   ]
+    BATCH = args.batch
+
     # Handle errors in the user-supplied paths
     if args.outfile:
         OUTFILE = os.path.abspath(args.outfile)
@@ -104,8 +106,7 @@ def inventory(args):
     # Write the existing portion of the inventory to the output file
     if OUTFILE:
         for entry in existing_entries:
-            writer.writerow({k.upper(): v for (k, v) in
-                            entry.__dict__.items() if k.upper() in FIELDNAMES})
+            write_entry(writer, BATCH, entry, FIELDNAMES)
             count += 1
 
     # Determine the set of hash algorithms to run
@@ -121,8 +122,8 @@ def inventory(args):
     # Check each (remaining) file and generate metadata
     for f in files_to_check:
         a = Asset().from_filesystem(f, PATH, *algs_to_run)
-        writer.writerow({k.upper(): v for k, v in
-                        a.__dict__.items() if k.upper() in FIELDNAMES})
+        write_entry(writer, BATCH, a, FIELDNAMES)
+
         count += 1
         # Display a running counter
         sys.stderr.write(
@@ -133,3 +134,12 @@ def inventory(args):
     sys.stderr.write('\nInventory complete!\n\n')
     if fh != sys.stdout:
         fh.close()
+
+
+def write_entry(writer, batch, entry, fieldnames):
+    '''
+    Write out an entry to the file using the supplied writer
+    '''
+    # Ensure that the entry include the "batch" field
+    entry.batch = batch
+    writer.writerow({k.upper(): v for k, v in entry.__dict__.items() if k.upper() in fieldnames})

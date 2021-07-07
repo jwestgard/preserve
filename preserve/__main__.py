@@ -80,6 +80,9 @@ def main():
         )
     inv_parser.add_argument('path', help='path to search', action='store')
     inv_parser.add_argument(
+        '-b', '--batch', help='the name of the batch', required=True, action='store'
+        )
+    inv_parser.add_argument(
         '-o', '--outfile', help='path to (new) output file', action='store'
         )
     inv_parser.add_argument(
