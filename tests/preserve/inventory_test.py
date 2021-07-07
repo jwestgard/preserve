@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 from preserve.inventory import inventory
 from preserve.asset import calculate_hashes
+from tests.utils import create_temp_file
 
 
 def test_inventory_stdout(capsys, tmp_path):
@@ -32,18 +33,6 @@ def test_inventory_stdout(capsys, tmp_path):
     stdout_lines = captured.out.split(csv.Dialect.lineterminator)
     assert stdout_lines[0] == expected_header
     assert stdout_lines[1] == expected_file_line
-
-
-def create_temp_file(temp_file_path, filename, contents):
-    '''
-    Creates a temporary file in the given path
-    '''
-    temp_file_path.mkdir()
-
-    temp_file = temp_file_path / filename
-
-    temp_file.write_text(contents)
-    return temp_file
 
 
 def generate_expected_values(temp_file):
