@@ -129,6 +129,7 @@ def inventory(args):
             "\rFiles checked: {0}/{1}".format(count, total)
             )
 
-    # Clear the counter, report results, and close file handle
+    # Clear the counter, report results, and close file handle (it not stdout)
     sys.stderr.write('\nInventory complete!\n\n')
-    fh.close()
+    if fh != sys.stdout:
+        fh.close()
