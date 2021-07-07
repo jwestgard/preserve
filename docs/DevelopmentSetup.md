@@ -29,7 +29,7 @@ Once "pyenv" and "pyenv-virtualenv" have been installed, install Python 3.7.10:
 > git clone git@github.com:umd-lib/preserve.git
 ```
 
-2) Switch to the "caia" directory:
+2) Switch to the "preserve" directory:
 
 ```
 > cd preserve
