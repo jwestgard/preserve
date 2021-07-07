@@ -6,20 +6,22 @@ from .utils import get_inventory
 from .utils import list_files
 
 
-#=== SUBCOMMAND =============================================================
+# === SUBCOMMAND =============================================================
 #         NAME: inventory
 #  DESCRIPTION: Generates a file listing with checksum, file size, timestamp
-#============================================================================
+# ============================================================================
 
 def inventory(args):
 
-    '''Create a CSV inventory of file metadata for files in 
+    '''Create a CSV inventory of file metadata for files in
        a specified path.'''
 
-    FIELDNAMES = ['PATH', 'DIRECTORY', 'FILENAME',
-                  'EXTENSION', 'BYTES', 'MTIME', 
+    FIELDNAMES = ['BATCH', 'PATH', 'DIRECTORY', 'RELPATH', 'FILENAME',
+                  'EXTENSION', 'BYTES', 'MTIME',
                   'MODDATE', 'MD5', 'SHA1', 'SHA256'
                   ]
+    BATCH = args.batch
+
     # Handle errors in the user-supplied paths
     if args.outfile:
         OUTFILE = os.path.abspath(args.outfile)
@@ -69,8 +71,7 @@ def inventory(args):
             all_keys.discard('relpath')
             if all_keys.issubset([fname.lower() for fname in FIELDNAMES]):
                 files_done = [
-                    os.path.join(f.directory, f.filename) \
-                    for f in existing_entries
+                    os.path.join(f.directory, f.filename) for f in existing_entries
                     ]
                 # Handle a complete inventory ...
                 if files_done == files_to_check:
@@ -105,8 +106,7 @@ def inventory(args):
     # Write the existing portion of the inventory to the output file
     if OUTFILE:
         for entry in existing_entries:
-            writer.writerow({k.upper(): v for (k,v) in \
-                            entry.__dict__.items() if k.upper() in FIELDNAMES})
+            write_entry(writer, BATCH, entry, FIELDNAMES)
             count += 1
 
     # Determine the set of hash algorithms to run
@@ -121,16 +121,25 @@ def inventory(args):
         algs_to_run = known_algs
     # Check each (remaining) file and generate metadata
     for f in files_to_check:
-        a = Asset().from_filesystem(f, *algs_to_run)
-        writer.writerow({k.upper(): v for k, v in \
-                        a.__dict__.items() if k.upper() in FIELDNAMES})
-        count += 1  
+        a = Asset().from_filesystem(f, PATH, *algs_to_run)
+        write_entry(writer, BATCH, a, FIELDNAMES)
+
+        count += 1
         # Display a running counter
         sys.stderr.write(
             "\rFiles checked: {0}/{1}".format(count, total)
             )
 
-    # Clear the counter, report results, and close file handle
+    # Clear the counter, report results, and close file handle (it not stdout)
     sys.stderr.write('\nInventory complete!\n\n')
-    fh.close()
+    if fh != sys.stdout:
+        fh.close()
 
+
+def write_entry(writer, batch, entry, fieldnames):
+    '''
+    Write out an entry to the file using the supplied writer
+    '''
+    # Ensure that the entry include the "batch" field
+    entry.batch = batch
+    writer.writerow({k.upper(): v for k, v in entry.__dict__.items() if k.upper() in fieldnames})

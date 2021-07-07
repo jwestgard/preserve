@@ -4,16 +4,17 @@ import re
 import sys
 from .manifest import Manifest
 
-#=== SUBCOMMAND =============================================================
+# === SUBCOMMAND =============================================================
 #         NAME: compare
 #  DESCRIPTION: check for the presence of files in inventories of various
 #               formats (TSM backup, file analyzer, this script)
-#============================================================================
+# ============================================================================
+
 
 def compare(args):
     '''Compare asset manifests checking for the presence of assets only'''
     asset_sets = {}
-    all_paths = [args.first] + args.other 
+    all_paths = [args.first] + args.other
     for manifest_file in all_paths:
         if not os.path.exists(manifest_file):
             sys.exit("{0} does not exist".format(manifest_file))
@@ -24,7 +25,8 @@ def compare(args):
                 for a in m:
                     relpath = os.path.relpath(('/' + a.path), m.root)
                     bytes = str(a.bytes)
-                    for a in m: s.add((relpath, bytes))
+                    for a in m:
+                        s.add((relpath, bytes))
             else:
                 s = set([(a.filename, str(a.bytes)) for a in m])
             asset_sets[manifest_file] = s

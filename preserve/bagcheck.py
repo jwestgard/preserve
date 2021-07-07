@@ -3,8 +3,8 @@ from .manifest import Manifest
 
 
 def bagcheck(args):
-    ''' Check inventory contents against relpaths & checksums of a bag manifest.
-    
+    '''
+    Check inventory contents against relpaths & checksums of a bag manifest.
     '''
 
     # create sets represnting the two asset manifests

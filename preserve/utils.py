@@ -22,7 +22,7 @@ def human_readable(bytes):
 
 
 def list_files(dir_path):
-    '''Return a list of files in a directory tree, pruning out the 
+    '''Return a list of files in a directory tree, pruning out the
        hidden files & dirs (i.e. those that begin with dot).'''
     result = []
     for root, dirs, files in os.walk(dir_path):
@@ -53,7 +53,7 @@ def get_inventory(path):
         result = []
         for n, f in enumerate(list_files(path)):
             print("  => found {0} files.".format(n+1), end='\r')
-            a = Asset.from_filesystem(f)
+            a = Asset.from_filesystem(f, path)
             result.append(a)
         print()
         return result

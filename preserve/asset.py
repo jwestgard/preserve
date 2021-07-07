@@ -4,7 +4,7 @@ import os
 
 
 def calculate_hashes(path, algorithms):
-    '''Given a path to a file and a list of hash algorithms, calculate and 
+    '''Given a path to a file and a list of hash algorithms, calculate and
        return a dictionary of the requested digests of the file'''
     hashes = [(alg, getattr(hashlib, alg)()) for alg in algorithms]
     with open(path, 'rb') as f:
@@ -26,13 +26,12 @@ class Asset():
             setattr(self, k, v)
 
     def __eq__(self, other):
-        if all([(self.md5 == other.md5), 
+        if all([(self.md5 == other.md5),
                 (self.bytes == other.bytes),
-                (self.filename == other.filename), 
-                (self.relpath == other.relpath)]
-                ): 
+                (self.filename == other.filename),
+                (self.relpath == other.relpath)]):
             return True
-        else: 
+        else:
             return False
 
     @classmethod
@@ -57,16 +56,24 @@ class Asset():
         return cls(**values)
 
     @classmethod
-    def from_filesystem(cls, path, *args):
+    def from_filesystem(cls, path, base_path, *args):
         '''Alternate constructor for reading attributes from file'''
         if not os.path.isfile(path):
             raise TypeError
         else:
+            reldir = ''
+            filepath = os.path.dirname(path)
+            if filepath != str(base_path):
+                reldir = os.path.relpath(os.path.dirname(path), base_path)
+            filename = os.path.basename(path)
+            relpath = os.path.join(reldir, filename)
+
             values = {
                 'path':      os.path.abspath(path),
                 'mtime':     int(os.path.getmtime(path)),
                 'directory': os.path.dirname(path),
-                'filename':  os.path.basename(path),
+                'relpath':   relpath,
+                'filename':  filename,
                 'bytes':     os.path.getsize(path),
                 'extension': os.path.splitext(path)[1].lstrip('.').upper()
                 }
