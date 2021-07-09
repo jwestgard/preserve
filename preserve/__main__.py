@@ -8,6 +8,7 @@ from .bytecount import bytecount
 from .compare import compare
 from .inventory import inventory
 from .verify import verify
+from . import version
 
 
 # ============================================================================
@@ -39,7 +40,7 @@ def main():
         )
     parser.add_argument(
         '-v', '--version', action='version', help='Print version number and exit',
-        version='%(prog)s 0.5'
+        version=version
         )
     subparsers.required = True
 
