@@ -4,6 +4,22 @@ import sys
 from .asset import Asset
 
 
+def header(title):
+    '''Generate a title header box for console output.'''
+    length = len(title) + 4
+    lines = [f"\n{'=' * length}",
+             f"|{' ' * (length-2)}|", 
+             f"| {title} |",
+             f"|{' ' * (length-2)}|",
+             f"{'=' * length}\n\n"]
+    return "\n".join(lines)
+
+
+def subheader(title):
+    '''Format and print header for a subcommand.'''
+    return f'{title.capitalize()}\n{"-" * len(title)}\n'
+
+
 def human_readable(bytes):
     '''Return human-readable version of a given number of bytes plus the units,
        rounding to two decimal places for scales in KiB and larger.'''

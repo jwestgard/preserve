@@ -2,6 +2,7 @@
 
 from .classes import FileSet
 from .exceptions import ConfigError, DuplicateFileError
+from preserve.utils import header
 import argparse
 import os
 import shutil
@@ -69,11 +70,7 @@ def has_duplicates(mapping):
 def main():
 
     try:
-        print(f"\n==================")
-        print(f"|                |")
-        print(f"| Partition Tool |")
-        print(f"|                |")
-        print(f"==================\n")
+        sys.stderr.write(header("Partition Tool"))
 
         """ (1) Parse args """
         args = parse_args()
