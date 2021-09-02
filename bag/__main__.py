@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+from preserve import version
+from preserve.utils import header
+
 import argparse
 import bagit
 import json
@@ -30,20 +33,17 @@ def parse_args():
         '-v', '--version',
         action='version',
         help='Print version number and exit',
-        version='%(prog)s 0.1'
+        version=version
         )
 
     return parser.parse_args()
 
 
+
 def main():
 
     try:
-        print(f"\n================")
-        print(f"|              |")
-        print(f"| Bagging Tool |")
-        print(f"|              |")
-        print(f"================\n")
+        sys.stderr.write(header("Bagging Tool"))
 
         """ (1) Parse args """
         args = parse_args()
