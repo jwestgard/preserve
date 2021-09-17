@@ -15,6 +15,7 @@ class Manifest(list):
         self.path = path
         if os.path.isdir(self.path):
             self.source = "directory"
+            self.root = self.path
             self.read_from_dir()
         elif os.path.isfile(self.path):
             self.source = "file"
