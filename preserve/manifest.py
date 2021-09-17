@@ -15,11 +15,12 @@ class Manifest(list):
         self.path = path
         if os.path.isdir(self.path):
             self.source = "directory"
+            self.root = self.path
             self.read_from_dir()
         elif os.path.isfile(self.path):
             self.source = "file"
             self.read_from_file()
-        self.root = os.path.commonpath([a.path for a in self]) + '/'
+            self.root = os.path.commonpath([a.path for a in self]) + '/'
         for asset in self:
             asset.relpath = re.sub(self.root, '', asset.path)
 
