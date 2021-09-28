@@ -16,9 +16,8 @@ def inventory(args):
     '''Create a CSV inventory of file metadata for files in
        a specified path.'''
 
-    FIELDNAMES = ['BATCH', 'PATH', 'DIRECTORY', 'RELPATH', 'FILENAME',
-                  'EXTENSION', 'BYTES', 'MTIME',
-                  'MODDATE', 'MD5', 'SHA1', 'SHA256'
+    FIELDNAMES = ['BATCH', 'PATH', 'DIRECTORY', 'RELPATH', 'FILENAME', 'EXTENSION',
+                  'BYTES', 'MTIME', 'MODDATE', 'MD5', 'ETAG', 'SHA1', 'SHA256'
                   ]
     BATCH = args.batch
 
