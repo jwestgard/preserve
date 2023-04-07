@@ -89,7 +89,7 @@ def main():
 
         """ (4) Create partition map """
         print(f"Creating mapping to partitioned tree...")
-        pattern = r"^([a-z]+?)-(\d+?)-\d+?\.\w+?$"
+        pattern = r"^([a-z]+?)-(\d+?)[-_][^.]+?\.\S+?$"
         mapping = fileset.partition_by(pattern, args.destination)
 
         """ (5) Check for duplicate files """
