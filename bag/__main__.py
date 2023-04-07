@@ -5,6 +5,7 @@ from preserve.utils import header
 
 import argparse
 import bagit
+import csv
 import json
 import os
 import sys
@@ -26,7 +27,21 @@ def parse_args():
     parser.add_argument(
         '-c', '--config',
         help='Path to a config file containing tag info',
-        action='store'
+        action='store',
+        required=True
+        )
+
+    parser.add_argument(
+        '-b', '--batch',
+        help='Batch identifier',
+        action='store',
+        required=True
+        )
+
+    parser.add_argument(
+        '-e', '--exclude',
+        help='Exclude hidden files and directories from the bag',
+        action='store_true'
         )
 
     parser.add_argument(
@@ -39,7 +54,6 @@ def parse_args():
     return parser.parse_args()
 
 
-
 def main():
 
     try:
@@ -47,34 +61,48 @@ def main():
 
         """ (1) Parse args """
         args = parse_args()
-        print(f"Running with the following arguments:")
+        sys.stderr.write(f"Running with the following arguments:\n")
         width = max([len(k) for k in args.__dict__])
         for k in args.__dict__:
-            print(f"  {k:>{width}} : {getattr(args, k)}")
+            sys.stderr.write(f"  {k:>{width}} : {getattr(args, k)}\n")
+        sys.stderr.write('\n')
+
+        if args.exclude:
+            for dir, subdirs, files in os.walk(args.path):
+                for f in files:
+                    if f.startswith('.'):
+                        os.remove(os.path.join(dir, f))
 
         """ (2) Read configuration """
-        if args.config:
-            with open(args.config) as handle:
-                config = json.load(handle)
+        with open(args.config) as handle:
+            sys.stderr.write("Reading tags from config file...\n")
+            reader = csv.DictReader(handle)
+            for row in reader:
+                if row['Internal-Sender-Description'] == args.batch:
+                    tags = row
 
         """ (3) Create bag """
+        sys.stderr.write("Analyzing files in bag...\n")
         bag = bagit.make_bag(args.path, checksums=['md5', 'sha256'])
-        for tagfile, tags in config.items():
-            if tagfile == 'bag-info.txt':
-                for k, v in tags.items():
-                    bag.info[k] = v
-            else:
-                tagfilepath = os.path.join(args.path, tagfile)
-                with open(tagfilepath, 'w') as handle:
-                    for k, v in tags.items():
-                        handle.write(f"{k}: {v}\n")
+        for key in ['Internal-Sender-Identifier',
+                    'Internal-Sender-Description',
+                    'Source-Organization'
+                    ]:
+            bag.info[key] = tags[key]
+
+        sys.stderr.write("Generating aptrust-info.txt...\n")
+        apt_tagfile_path = os.path.join(args.path, 'aptrust-info.txt')
+        with open(apt_tagfile_path, 'w') as handle:
+            for key in ['Access', 'Description', 'Storage-Option', 'Title']:
+                handle.write(f"{key}: {tags[key]}\n")
+
         bag.save()
 
         """ (4) Summarize results """
-        print("Bagging complete.")
+        sys.stderr.write("Bagging complete.\n")
 
     except Exception as err:
-        print(f"ERROR: {err}", file=sys.stderr)
+        sys.stderr.write(f"ERROR: {err}\n")
         sys.exit(1)
 
 
