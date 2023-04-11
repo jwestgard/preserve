@@ -3,9 +3,9 @@
 ## Versioning
 
 * 0.6.0 and earlier - Designed for pasty v1
-* 2.0.0 and later - Designed for use with patsy v2
+* 1.0.0 and later - Designed for use with patsy v2
 
-Version 1.0 was skipped to keep versions in line with other tools.
+See the Git Tags for versioning.
 
 ## Usage
 
@@ -18,13 +18,18 @@ This script includes the following subcommands:
 
 To install, clone this repository and do:
 
-```
-python3 setup.py install
+```bash
+pyenv local $(cat .python-version)
+python -m venv .venv --prompt preserve
+source .venv/bin/active
+python setup.py install
 ```
 
-Run the various subcommands as follows:
+If the virtual environment was already setup, just the last two lines are sufficient.
 
-```
+### Subcommands
+
+```bash
 preserve bytecount [path]
 preserve inventory [path] (-o OUTFILE) (-e EXISTING)
 preserve compare [file1] [file2] ...
@@ -33,7 +38,7 @@ preserve verify [file1|path1] [file2|path2]
 
 Or, for a full list of options:
 
-```
+```bash
 preserve -h
 ```
 
