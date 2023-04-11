@@ -7,7 +7,7 @@ from .asset import Asset
 
 ALGS = ['md5', 'sha1', 'sha256']
 
-FIELDNAMES = ['BATCH', 'PATH', 'DIRECTORY', 'RELPATH', 'FILENAME', 'EXTENSION', 
+FIELDNAMES = ['BATCH', 'PATH', 'DIRECTORY', 'RELPATH', 'FILENAME', 'EXTENSION',
               'BYTES', 'MTIME', 'MODDATE', 'MD5', 'SHA1', 'SHA256', 'storageprovider',
               'storagepath']
 
@@ -76,7 +76,7 @@ def annotate(args):
         filename = row['FILENAME']
         if row['PATH'] != '' or row['storagepath'] != '':
             sys.stderr.write(f"{n}. Skipping completed row for {filename}\n")
-            #writer.writerow(row)
+            # writer.writerow(row)
         else:
             sys.stderr.write(f"{n}. Searching for a local path to {filename} ...\n")
             annotated = examine_matching_file(filename, args.root, row, file_index)
