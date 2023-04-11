@@ -6,10 +6,10 @@ from .manifest import Manifest
 
 def inspect(bag: str) -> set:
     '''
-    Checks the given bag. If the bag is a tar or tar.gz file, it
-    will open the bag and then open the manifest file in the archive.
-    Otherwise it will treat the bag as a regular directory and open
-    the manifest file.
+    Checks the given bag. If the bag is a directory, it
+    will open the bag and then open the manifest file.
+    Otherwise it will treat the bag as a tar or tar.gz file and open
+    the manifest file in the archive.
     '''
     if os.path.isdir(bag):
         with open(os.path.join(bag, 'manifest-md5.txt')) as bag_manifest:
