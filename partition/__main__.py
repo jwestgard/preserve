@@ -8,6 +8,8 @@ import os
 import shutil
 import sys
 
+PARTITIONING_PATTERN = r"^([a-z]+?)-(\d+?)[-_][^.]+?\.\S+?$"
+
 
 def parse_args():
     ''' Parse command line arguments '''
@@ -89,8 +91,7 @@ def main():
 
         """ (4) Create partition map """
         print(f"Creating mapping to partitioned tree...")
-        pattern = r"^([a-z]+?)-(\d+?)-\d+?\.\w+?$"
-        mapping = fileset.partition_by(pattern, args.destination)
+        mapping = fileset.partition_by(PARTITIONING_PATTERN, args.destination)
 
         """ (5) Check for duplicate files """
         duplicates = has_duplicates(mapping)
