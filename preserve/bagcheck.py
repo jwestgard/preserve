@@ -13,14 +13,14 @@ def inspect(bag: str) -> set:
     '''
     if os.path.isdir(bag):
         with open(os.path.join(bag, 'manifest-md5.txt')) as bag_manifest:
-            return {tuple(line.strip().split(None, 1)) for line in bag_manifest}
+            return {tuple(line.strip().split(maxsplit=1)) for line in bag_manifest}
 
     elif tarfile.is_tarfile(bag):
         directory_name = bag.split('/')[-1].split('.')[0]
         tar = tarfile.open(bag, mode='r:*')
 
         with tar.extractfile(f'{directory_name}/manifest-md5.txt') as bag_manifest:
-            return {tuple(line.strip().split(None, 1)) for line in bag_manifest}
+            return {tuple(line.strip().split(maxsplit=1)) for line in bag_manifest}
 
     else:
         raise RuntimeError(f'{bag} is neither a directory or a tar file')
