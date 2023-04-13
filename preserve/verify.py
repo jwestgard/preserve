@@ -1,6 +1,3 @@
-import os
-import re
-from .utils import get_inventory
 from .manifest import Manifest
 
 # === SUBCOMMAND =============================================================
