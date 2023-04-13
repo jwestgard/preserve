@@ -20,6 +20,8 @@ from partition.classes import Asset, FileSet
 def test_partition_by(filename, dest_dir):
     # 'd41d8cd98f00b204e9800998ecf8427e' is the MD5 of an empty file
     asset = Asset(filename=filename, md5='d41d8cd98f00b204e9800998ecf8427e', bytes=0)
+    # '8ddd8be4b179a529afa5f2ffae4b9858' is the MD5 of a file with just the line 'Hello World!'
+    asset2 = Asset(filename=filename, md5='8ddd8be4b179a529afa5f2ffae4b9858', bytes=13)
     path = f'/input/{filename}'
     path2 = f'/input/{filename}.extra'
 
@@ -35,6 +37,16 @@ def test_partition_by(filename, dest_dir):
     fileset = FileSet({
         path: asset,
         path2: asset
+    })
+
+    mapping = fileset.partition_by(PARTITIONING_PATTERN, '/output')
+    duplicates = has_duplicates(mapping)
+    assert duplicates
+
+    # This shouldn't have duplicates
+    fileset = FileSet({
+        path: asset,
+        path2: asset2
     })
 
     mapping = fileset.partition_by(PARTITIONING_PATTERN, '/output')
