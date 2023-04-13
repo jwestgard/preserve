@@ -5,30 +5,34 @@ from .manifest import Manifest
 
 
 def inspect(bag: str) -> set:
-    '''
+    """
     Checks the given bag. If the bag is a directory, it
     will open the bag and then open the manifest file.
-    Otherwise it will treat the bag as a tar or tar.gz file and open
+    If the bag is as a tar or tar.gz file, it will open
     the manifest file in the archive.
-    '''
+    Otherwise, raises a RuntimeError.
+    """
     if os.path.isdir(bag):
         with open(os.path.join(bag, 'manifest-md5.txt')) as bag_manifest:
-            return {tuple(line.strip().split(None, 1)) for line in bag_manifest}
+            return {tuple(line.strip().split(maxsplit=1)) for line in bag_manifest}
 
-    else:
+    elif tarfile.is_tarfile(bag):
         directory_name = bag.split('/')[-1].split('.')[0]
-        tar = tarfile.open(bag, 'r') if bag.endswith('.tar') else tarfile.open(bag, 'r:gz')
+        tar = tarfile.open(bag, mode='r:*')
 
         with tar.extractfile(f'{directory_name}/manifest-md5.txt') as bag_manifest:
-            return {tuple(line.strip().split(None, 1)) for line in bag_manifest}
+            return {tuple(line.strip().split(maxsplit=1)) for line in bag_manifest}
+
+    else:
+        raise RuntimeError(f'{bag} is neither a directory or a tar file')
 
 
 def bagcheck(args):
-    '''
+    """
     Check inventory contents against relpaths & checksums of a bag manifest.
-    '''
+    """
 
-    # create sets represnting the two asset manifests
+    # create sets representing the two asset manifests
     print(f"Reading asset inventory at {args.inventory}...")
     inventory = Manifest(args.inventory)
     print(f" => {len(inventory)} assets in batch.")
