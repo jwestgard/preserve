@@ -8,7 +8,7 @@ def header(title):
     '''Generate a title header box for console output.'''
     length = len(title) + 4
     lines = [f"\n{'=' * length}",
-             f"|{' ' * (length-2)}|", 
+             f"|{' ' * (length-2)}|",
              f"| {title} |",
              f"|{' ' * (length-2)}|",
              f"{'=' * length}\n\n"]
@@ -33,7 +33,7 @@ def human_readable(bytes):
                 scaled = int(scaled)
             else:
                 scaled = round(scaled, 2)
-            return(scaled, orders_mag[n])
+            return (scaled, orders_mag[n])
     return False
 
 

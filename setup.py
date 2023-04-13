@@ -20,6 +20,6 @@ setup(
     python_requires='>=3.7',
     extras_require={  # Optional
        'dev': ['pycodestyle'],
-       'test': [],
+       'test': ['pytest'],
     }
 )
