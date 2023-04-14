@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from .classes import FileSet
-from .exceptions import ConfigError, DuplicateFileError
+from .exceptions import ConfigError, DuplicateFileError, ClobberingFileError
 from preserve.utils import header
 import argparse
 import os
@@ -69,6 +69,10 @@ def has_duplicates(mapping):
         return False
 
 
+def clobbering(dest: str) -> bool:
+    return os.path.isfile(dest)
+
+
 def main():
 
     try:
@@ -109,7 +113,10 @@ def main():
             else:
                 os.makedirs(os.path.dirname(destination), exist_ok=True)
                 if args.mode == 'copy':
-                    shutil.copyfile(source, destination)
+                    if not clobbering(destination):
+                        shutil.copyfile(source, destination)
+                    else:
+                        raise ClobberingFileError(f"File already exists at {destination}")
                 elif args.mode == 'move':
                     shutil.move(source, destination)
 
