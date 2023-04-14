@@ -69,8 +69,13 @@ def has_duplicates(mapping):
         return False
 
 
-def clobbering(dest: str) -> bool:
-    return os.path.isfile(dest)
+def clobbering(mapping: dict) -> list:
+    clobbered = []
+    for _, (_, destination) in enumerate(mapping.items(), 1):
+        if os.path.isfile(destination):
+            clobbered.append(destination)
+
+    return destination
 
 
 def main():
@@ -104,7 +109,12 @@ def main():
         else:
             print("Destination paths are all confirmed to be unique...")
 
-        """ (5) Move, copy, or print """
+        """ (6) Check for clobbering """
+        clobbered = clobbering(mapping)
+        if clobbered:
+            raise ClobberingFileError(f"Files clobbered: {clobbered}")
+
+        """ (7) Move, copy, or print """
         print(f"Partitioning files ({args.mode} mode)...")
         for n, (source, destination) in enumerate(mapping.items(), 1):
             print(f"  {n}. {source} -> {destination}")
@@ -113,14 +123,11 @@ def main():
             else:
                 os.makedirs(os.path.dirname(destination), exist_ok=True)
                 if args.mode == 'copy':
-                    if not clobbering(destination):
-                        shutil.copyfile(source, destination)
-                    else:
-                        raise ClobberingFileError(f"File already exists at {destination}")
+                    shutil.copyfile(source, destination)
                 elif args.mode == 'move':
                     shutil.move(source, destination)
 
-        """ (6) Summarize results """
+        """ (8) Summarize results """
         print("Partitioning complete.")
 
     except Exception as err:
