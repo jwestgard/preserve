@@ -1,8 +1,7 @@
-from collections import namedtuple, UserDict
 import csv
 import os
 import re
-
+from collections import UserDict, namedtuple
 
 Asset = namedtuple('Asset', 'filename md5 bytes')
 

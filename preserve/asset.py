@@ -1,6 +1,6 @@
-from datetime import datetime as dt
 import hashlib
 import os
+from datetime import datetime as dt
 
 GB = 1024 ** 3
 CHUNK_SIZE = 4 * GB

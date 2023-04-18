@@ -1,10 +1,9 @@
 import csv
 import os
 import sys
-from .asset import Asset
-from .utils import get_inventory
-from .utils import list_files
 
+from .asset import Asset
+from .utils import get_inventory, list_files
 
 # === SUBCOMMAND =============================================================
 #         NAME: inventory
