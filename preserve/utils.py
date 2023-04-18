@@ -1,6 +1,7 @@
 import csv
 import os
 import sys
+
 from .asset import Asset
 
 
@@ -13,6 +14,19 @@ def header(title):
              f"|{' ' * (length-2)}|",
              f"{'=' * length}\n\n"]
     return "\n".join(lines)
+
+
+def file_size(size: int) -> str:
+    if size >= 2**40:
+        return f"{round(size/2**40, 2)} TiB"
+    elif size >= 2**30:
+        return f"{round(size/2**30, 2)} GiB"
+    elif size >= 2**20:
+        return f"{round(size/2**20, 2)} MiB"
+    elif size >= 2**10:
+        return f"{round(size/2**10, 2)} KiB"
+    else:
+        return f"{size} Bytes"
 
 
 def subheader(title):
