@@ -17,8 +17,6 @@ logging.basicConfig(format='%(message)s',
 
 PARTITIONING_PATTERN = r"^([a-z]+?)-(\d+?)[-_][^.]+?\.\S+?$"
 
-PROJECT_ROOT = Path(__file__).parent.parent
-CSV_NAME = 'moved_relpaths.csv'
 CSV_FIELDS = ['relpath_old', 'relpath_new']
 
 
@@ -145,7 +143,7 @@ def main():
 
         """ (6) Record results """
         if args.output is not None:
-            with open(PROJECT_ROOT / CSV_NAME, 'w') as csv_file:
+            with open(args.output, 'w') as csv_file:
                 write_relpaths(relpaths=relpaths, file=csv_file)
         else:
             write_relpaths(relpaths=relpaths)
