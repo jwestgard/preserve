@@ -54,9 +54,6 @@ def check_args(args):
     if not os.path.isdir(args.source):
         raise ConfigError("Source directory not found")
 
-    if os.path.isdir(args.destination) and len(os.listdir(args.destination)) > 0:
-        raise ConfigError("Destination directory is not empty")
-
 
 def has_duplicates(mapping):
     all_dest = dict()
@@ -70,12 +67,7 @@ def has_duplicates(mapping):
 
 
 def clobbering(mapping: dict) -> list:
-    clobbered = []
-    for _, (_, destination) in enumerate(mapping.items(), 1):
-        if os.path.isfile(destination):
-            clobbered.append(destination)
-
-    return destination
+    return [destination for _, destination in mapping.items() if os.path.isfile(destination)]
 
 
 def main():
@@ -112,7 +104,8 @@ def main():
         """ (6) Check for clobbering """
         clobbered = clobbering(mapping)
         if clobbered:
-            raise ClobberingFileError(f"Files clobbered: {clobbered}")
+            joined_clobbered = '\n'.join(clobbered)
+            raise ClobberingFileError(f"Files clobbered: {joined_clobbered}")
 
         """ (7) Move, copy, or print """
         print(f"Partitioning files ({args.mode} mode)...")
