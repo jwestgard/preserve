@@ -66,10 +66,6 @@ def has_duplicates(mapping):
         return False
 
 
-def clobbering(mapping: dict) -> list:
-    return [destination for _, destination in mapping.items() if os.path.isfile(destination)]
-
-
 def main():
 
     try:
@@ -102,9 +98,9 @@ def main():
             print("Destination paths are all confirmed to be unique...")
 
         """ (6) Check for clobbering """
-        clobbered = clobbering(mapping)
-        if clobbered:
-            joined_clobbered = '\n'.join(clobbered)
+        existing_files = [filter(os.path.isfile, mapping.values())]
+        if existing_files:
+            joined_clobbered = '\n'.join(existing_files)
             raise ClobberingFileError(f"Files clobbered: {joined_clobbered}")
 
         """ (7) Move, copy, or print """

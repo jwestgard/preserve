@@ -17,6 +17,6 @@ class DuplicateFileError(Exception):
 class ClobberingFileError(Exception):
     """ Custom exception class raised when encoutering files that would be overritten """
 
-    def __init__(self, message):
-        self.message = message
-        super().__init__(self.message)
+    def __init__(self, *args, files=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.files = files or []
