@@ -98,7 +98,7 @@ def main():
             print("Destination paths are all confirmed to be unique...")
 
         """ (6) Check for clobbering """
-        existing_files = [filter(os.path.isfile, mapping.values())]
+        existing_files = list(filter(os.path.isfile, mapping.values()))
         if existing_files:
             joined_clobbered = '\n'.join(existing_files)
             raise ClobberingFileError(f"Files clobbered: {joined_clobbered}")
