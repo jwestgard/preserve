@@ -2,8 +2,9 @@ import argparse
 import csv
 import os
 from datetime import datetime
-from preserve.inventory import inventory
+
 from preserve.asset import calculate_hashes
+from preserve.inventory import inventory
 from tests.utils import create_temp_file
 
 

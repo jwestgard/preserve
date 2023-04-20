@@ -1,6 +1,7 @@
 import csv
 import os
 import sys
+
 from .asset import Asset
 
 

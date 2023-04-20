@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 
-from .classes import FileSet
-from .exceptions import ConfigError, DuplicateFileError
-from preserve.utils import header
 import argparse
 import os
 import shutil
 import sys
+
+from preserve.utils import header
+
+from .classes import FileSet
+from .exceptions import ConfigError, DuplicateFileError
 
 PARTITIONING_PATTERN = r"^([a-z]+?)-(\d+?)[-_][^.]+?\.\S+?$"
 
