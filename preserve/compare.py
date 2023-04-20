@@ -2,7 +2,6 @@ import csv
 import os
 import re
 import sys
-
 from .manifest import Manifest
 
 # === SUBCOMMAND =============================================================

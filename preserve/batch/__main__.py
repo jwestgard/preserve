@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 
+from ..inventory import inventory as inventory
+from ..utils import human_readable as human_readable
+from ..__main__ import print_header as print_header
 import csv
 import os
 import sys
-
 import yaml
-
-from ..__main__ import print_header as print_header
-from ..inventory import inventory as inventory
-from ..utils import human_readable as human_readable
 
 
 def table_format(results):

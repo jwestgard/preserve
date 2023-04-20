@@ -2,7 +2,6 @@ import csv
 import os
 import pathlib
 import re
-
 from .asset import Asset
 from .utils import list_files
 

@@ -2,8 +2,8 @@ import csv
 import os
 import sys
 
-from .asset import Asset
 from .manifest import Manifest
+from .asset import Asset
 
 ALGS = ['md5', 'sha1', 'sha256']
 
