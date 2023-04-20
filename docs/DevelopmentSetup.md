@@ -79,9 +79,3 @@ to check compliance with the guidelines can be run using:
 ```bash
 > pycodestyle --exclude=.venv .
 ```
-
-For managing modules, using isort can organize them:
-
-```bash
-> isort .
-```
