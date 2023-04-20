@@ -85,7 +85,10 @@ def has_duplicates(mapping):
         return False
 
 
-def write_relpaths(relpaths=[], file=sys.stdout):
+def write_relpaths(relpaths=None, file=sys.stdout):
+    if relpaths is None:
+        relpaths = []
+
     csv_writer = csv.writer(file)
     csv_writer.writerow(CSV_FIELDS)
 
