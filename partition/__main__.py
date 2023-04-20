@@ -1,9 +1,20 @@
 #!/usr/bin/env python3
 
 import argparse
+import csv
+import logging
 import os
 import shutil
 import sys
+from pathlib import Path
+
+from preserve.utils import file_size, header
+
+from .classes import FileSet
+from .exceptions import ConfigError, DuplicateFileError
+
+logging.basicConfig(format='%(message)s',
+                    level="INFO")
 
 from preserve.utils import header
 
@@ -11,6 +22,8 @@ from .classes import FileSet
 from .exceptions import ConfigError, DuplicateFileError
 
 PARTITIONING_PATTERN = r"^([a-z]+?)-(\d+?)[-_][^.]+?\.\S+?$"
+
+CSV_FIELDS = ['relpath_old', 'relpath_new']
 
 
 def parse_args():
@@ -38,6 +51,13 @@ def parse_args():
         help='Dryrun, move, or copy files to destination',
         action='store',
         default='dryrun'
+        )
+
+    parser.add_argument(
+        '-o', '--output',
+        default=None,
+        action='store',
+        help='Path to csv file',
         )
 
     parser.add_argument(
@@ -71,28 +91,39 @@ def has_duplicates(mapping):
         return False
 
 
+def write_relpaths(relpaths=None, file=sys.stdout):
+    if relpaths is None:
+        relpaths = []
+
+    csv_writer = csv.writer(file)
+    csv_writer.writerow(CSV_FIELDS)
+
+    for row in relpaths:
+        csv_writer.writerow(row)
+
+
 def main():
 
     try:
-        sys.stderr.write(header("Partition Tool"))
+        logging.info(header("Partition Tool"))
 
         """ (1) Parse args """
         args = parse_args()
 
         """ (2) Validate the provided arguments """
         check_args(args)
-        print(f"Running with the following arguments:")
+        logging.info(f"Running with the following arguments:")
         width = max([len(k) for k in args.__dict__])
         for k in args.__dict__:
-            print(f"  {k:>{width}} : {getattr(args, k)}")
+            logging.info(f"  {k:>{width}} : {getattr(args, k)}")
 
         """ (3) Create FileSet """
         fileset = FileSet.from_filesystem(args.source)
-        print(f"\nAnalyzing files: {len(fileset)} files, " +
-              f"{round(fileset.bytes/2**30, 2)} GiB")
+        logging.info(f"\nAnalyzing files: {len(fileset)} files, " +
+                     file_size(fileset.bytes))
 
         """ (4) Create partition map """
-        print(f"Creating mapping to partitioned tree...")
+        logging.info(f"Creating mapping to partitioned tree...")
         mapping = fileset.partition_by(PARTITIONING_PATTERN, args.destination)
 
         """ (5) Check for duplicate files """
@@ -100,12 +131,13 @@ def main():
         if duplicates:
             raise DuplicateFileError(f"Duplicate filenames detected: {duplicates}")
         else:
-            print("Destination paths are all confirmed to be unique...")
+            logging.info("Destination paths are all confirmed to be unique...")
 
         """ (5) Move, copy, or print """
-        print(f"Partitioning files ({args.mode} mode)...")
+        relpaths = []
+        logging.info(f"Partitioning files ({args.mode} mode)...")
         for n, (source, destination) in enumerate(mapping.items(), 1):
-            print(f"  {n}. {source} -> {destination}")
+            logging.info(f"  {n}. {source} -> {destination}")
             if args.mode == 'dryrun':
                 continue
             else:
@@ -114,12 +146,19 @@ def main():
                     shutil.copyfile(source, destination)
                 elif args.mode == 'move':
                     shutil.move(source, destination)
+            relpaths.append((source, destination))
+        
+        logging.info("Partitioning complete.\n")
 
-        """ (6) Summarize results """
-        print("Partitioning complete.")
+        """ (6) Record results """
+        if args.output is not None:
+            with open(args.output, 'w') as csv_file:
+                write_relpaths(relpaths=relpaths, file=csv_file)
+        else:
+            write_relpaths(relpaths=relpaths)
 
     except Exception as err:
-        print(f"ERROR: {err}", file=sys.stderr)
+        logging.error(f"{err}")
         sys.exit(1)
 
 

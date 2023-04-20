@@ -16,6 +16,19 @@ def header(title):
     return "\n".join(lines)
 
 
+def file_size(size: int) -> str:
+    if size >= 2**40:
+        return f"{round(size/2**40, 2)} TiB"
+    elif size >= 2**30:
+        return f"{round(size/2**30, 2)} GiB"
+    elif size >= 2**20:
+        return f"{round(size/2**20, 2)} MiB"
+    elif size >= 2**10:
+        return f"{round(size/2**10, 2)} KiB"
+    else:
+        return f"{size} Bytes"
+
+
 def subheader(title):
     '''Format and print header for a subcommand.'''
     return f'{title.capitalize()}\n{"-" * len(title)}\n'
