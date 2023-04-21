@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 import argparse
 import csv
 import logging
@@ -14,6 +15,11 @@ from .exceptions import ConfigError, DuplicateFileError
 
 logging.basicConfig(format='%(message)s',
                     level="INFO")
+
+from preserve.utils import header
+
+from .classes import FileSet
+from .exceptions import ConfigError, DuplicateFileError
 
 PARTITIONING_PATTERN = r"^([a-z]+?)-(\d+?)[-_][^.]+?\.\S+?$"
 
