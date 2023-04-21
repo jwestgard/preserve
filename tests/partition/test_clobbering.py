@@ -1,5 +1,4 @@
-from partition.__main__ import clobbering
-
+from os.path import isfile
 
 def test_clobbering(tmp_path):
     (tmp_path / 'exdir').mkdir()
@@ -16,6 +15,6 @@ def test_clobbering(tmp_path):
         "dsfa": tmp_path / "exdir/example"
     }
 
-    clobbered = clobbering(mapping=mapping)
+    clobbered = list(filter(isfile, mapping.values()))
     assert len(clobbered) == 1
     assert clobbered[0] == tmp_path / "exdir/example"
