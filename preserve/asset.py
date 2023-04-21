@@ -108,7 +108,7 @@ class Asset():
         return cls(**values)
 
     @classmethod
-    def from_filesystem(cls, path, base_path, *args):
+    def from_filesystem(cls, path, base_path, label, *args):
         '''Alternate constructor for reading attributes from file'''
         if not os.path.isfile(path):
             raise TypeError
@@ -127,7 +127,9 @@ class Asset():
                 'relpath':   relpath,
                 'filename':  filename,
                 'bytes':     os.path.getsize(path),
-                'extension': os.path.splitext(path)[1].lstrip('.').upper()
+                'extension': os.path.splitext(path)[1].lstrip('.').upper(),
+                'storagelocation': f'{label}:{relpath}',
+                'storageprovider': 'HDD',
                 }
             values['moddate'] = dt.fromtimestamp(values['mtime']).strftime(
                                                            '%Y-%m-%dT%H:%M:%S')
@@ -137,4 +139,5 @@ class Asset():
                 values['etag'] = values['md5']
             else:
                 values['etag'] = calculate_etag(path, CHUNK_SIZE)
+
         return cls(**values)
