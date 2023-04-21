@@ -1,5 +1,6 @@
 import os
 import sys
+
 from .manifest import Manifest
 
 # === SUBCOMMAND =============================================================

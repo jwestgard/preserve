@@ -3,6 +3,7 @@
 from .classes import FileSet
 from .exceptions import ConfigError, DuplicateFileError, ClobberingFileError
 from preserve.utils import header
+
 import argparse
 import csv
 import logging
@@ -11,13 +12,14 @@ import shutil
 import sys
 from pathlib import Path
 
-from preserve.utils import file_size, header
-
-from .classes import FileSet
-from .exceptions import ConfigError, DuplicateFileError
 
 logging.basicConfig(format='%(message)s',
                     level="INFO")
+
+from preserve.utils import header
+
+from .classes import FileSet
+from .exceptions import ConfigError, DuplicateFileError
 
 PARTITIONING_PATTERN = r"^([a-z]+?)-(\d+?)[-_][^.]+?\.\S+?$"
 

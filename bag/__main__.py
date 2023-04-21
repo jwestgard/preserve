@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 
-from preserve import version
-from preserve.utils import header
-
 import argparse
-import bagit
 import csv
 import json
 import os
 import sys
+
+import bagit
+
+from preserve import version
+from preserve.utils import header
 
 
 def parse_args():

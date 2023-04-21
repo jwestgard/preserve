@@ -4,14 +4,14 @@
 import argparse
 import sys
 
+from . import version
 from .annotate import annotate
 from .bagcheck import bagcheck
 from .bytecount import bytecount
 from .compare import compare
 from .inventory import inventory
-from .verify import verify
 from .utils import header, subheader
-from . import version
+from .verify import verify
 
 
 def main():

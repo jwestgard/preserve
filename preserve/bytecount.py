@@ -1,5 +1,4 @@
-from .utils import get_inventory
-from .utils import human_readable
+from .utils import get_inventory, human_readable
 
 # === SUBCOMMAND =============================================================
 #         NAME: bytecount
