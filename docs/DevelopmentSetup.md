@@ -77,7 +77,7 @@ Application code style should generally conform to the guidelines in
 to check compliance with the guidelines can be run using:
 
 ```bash
-> pycodestyle --exclude=.venv .
+> pycodestyle .
 ```
 
 For organizing modules, use isort:

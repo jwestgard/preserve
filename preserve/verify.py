@@ -1,8 +1,4 @@
-import os
-import re
-
 from .manifest import Manifest
-from .utils import get_inventory
 
 # === SUBCOMMAND =============================================================
 #         NAME: verify

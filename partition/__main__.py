@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+from .classes import FileSet
+from .exceptions import ConfigError, DuplicateFileError, ClobberingFileError
+from preserve.utils import header
+
 import argparse
 import csv
 import logging
@@ -8,10 +12,6 @@ import shutil
 import sys
 from pathlib import Path
 
-from preserve.utils import file_size, header
-
-from .classes import FileSet
-from .exceptions import ConfigError, DuplicateFileError
 
 logging.basicConfig(format='%(message)s',
                     level="INFO")
@@ -76,9 +76,6 @@ def check_args(args):
     if not os.path.isdir(args.source):
         raise ConfigError("Source directory not found")
 
-    if os.path.isdir(args.destination) and len(os.listdir(args.destination)) > 0:
-        raise ConfigError("Destination directory is not empty")
-
 
 def has_duplicates(mapping):
     all_dest = dict()
@@ -133,7 +130,13 @@ def main():
         else:
             logging.info("Destination paths are all confirmed to be unique...")
 
-        """ (5) Move, copy, or print """
+        """ (6) Check for clobbering """
+        existing_files = list(filter(os.path.isfile, mapping.values()))
+        if existing_files:
+            joined_clobbered = '\n'.join(existing_files)
+            raise ClobberingFileError(f"Files clobbered: {joined_clobbered}")
+
+        """ (7) Move, copy, or print """
         relpaths = []
         logging.info(f"Partitioning files ({args.mode} mode)...")
         for n, (source, destination) in enumerate(mapping.items(), 1):
@@ -146,11 +149,12 @@ def main():
                     shutil.copyfile(source, destination)
                 elif args.mode == 'move':
                     shutil.move(source, destination)
+
             relpaths.append((source, destination))
         
         logging.info("Partitioning complete.\n")
 
-        """ (6) Record results """
+        """ (8) Record results """
         if args.output is not None:
             with open(args.output, 'w') as csv_file:
                 write_relpaths(relpaths=relpaths, file=csv_file)
