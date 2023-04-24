@@ -10,6 +10,7 @@ from .utils import get_inventory, list_files
 #  DESCRIPTION: Generates a file listing with checksum, file size, timestamp
 # ============================================================================
 
+
 def inventory(args):
 
     '''Create a CSV inventory of file metadata for files in

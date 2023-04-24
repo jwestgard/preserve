@@ -146,7 +146,7 @@ def main():
                     shutil.move(source, destination)
 
             relpaths.append((source, destination))
-        
+
         logging.info("Partitioning complete.\n")
 
         """ (8) Record results """

@@ -32,9 +32,8 @@ def test_inventory_stdout(capsys, tmp_path):
 
     captured = capsys.readouterr()
 
-    
     expected_header = 'BATCH,PATH,DIRECTORY,RELPATH,FILENAME,EXTENSION,BYTES,MTIME,MODDATE,MD5,ETAG,SHA1,SHA256,' +\
-                        'STORAGEPROVIDER,STORAGELOCATION'
+                      'STORAGEPROVIDER,STORAGELOCATION'
     expected_file_line = f"{batch},{expected['path']},{expected['directory']},{expected_rel_path}," +\
                          f"{expected['filename']},{expected['extension']},{expected['bytes']},{expected['mtime']}," +\
                          f"{expected['moddate']},{expected['md5']},{expected['etag']},{expected['sha1']}," +\
@@ -64,7 +63,7 @@ def generate_expected_values(temp_file, relpath):
         "sha1":  hashes['sha1'],
         "sha256":  hashes['sha256'],
         "storageprovider": 'HDD',
-        "storagelocation":f'test:{relpath}',
+        "storagelocation": f'test:{relpath}',
     }
 
     return expected_values
