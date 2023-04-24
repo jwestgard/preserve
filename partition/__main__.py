@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
 
-from .classes import FileSet
-from .exceptions import ConfigError, DuplicateFileError, ClobberingFileError
-from preserve.utils import header
-
 import argparse
 import csv
 import logging
@@ -12,6 +8,10 @@ import shutil
 import sys
 from pathlib import Path
 
+from preserve.utils import header
+
+from .classes import FileSet
+from .exceptions import ClobberingFileError, ConfigError, DuplicateFileError
 
 logging.basicConfig(format='%(message)s',
                     level="INFO")
