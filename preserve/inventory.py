@@ -10,13 +10,14 @@ from .utils import get_inventory, list_files
 #  DESCRIPTION: Generates a file listing with checksum, file size, timestamp
 # ============================================================================
 
+
 def inventory(args):
 
     '''Create a CSV inventory of file metadata for files in
        a specified path.'''
 
     FIELDNAMES = ['BATCH', 'PATH', 'DIRECTORY', 'RELPATH', 'FILENAME', 'EXTENSION',
-                  'BYTES', 'MTIME', 'MODDATE', 'MD5', 'ETAG', 'SHA1', 'SHA256'
+                  'BYTES', 'MTIME', 'MODDATE', 'MD5', 'ETAG', 'SHA1', 'SHA256', 'STORAGEPROVIDER', 'STORAGELOCATION'
                   ]
     BATCH = args.batch
 
@@ -42,6 +43,12 @@ def inventory(args):
     else:
         OUTFILE = None
 
+    # Handle errors with label not provided
+    if args.label is None:
+        return (
+            "ERROR: Label was not provided"
+        )
+
     # Ensure that the path to be checked is valid
     if os.path.exists(args.path):
         PATH = os.path.abspath(args.path)
@@ -61,7 +68,7 @@ def inventory(args):
         sys.stderr.write("Writing to file: {0}\n".format(OUTFILE))
         # If the output file exists, read it and resume the job.
         if os.path.isfile(OUTFILE):
-            existing_entries = get_inventory(OUTFILE)
+            existing_entries = get_inventory(OUTFILE, args.label)
             all_keys = set().union(
                 *(e.__dict__.keys() for e in existing_entries)
                 )
@@ -119,7 +126,7 @@ def inventory(args):
         algs_to_run = known_algs
     # Check each (remaining) file and generate metadata
     for f in files_to_check:
-        a = Asset().from_filesystem(f, PATH, *algs_to_run)
+        a = Asset().from_filesystem(f, PATH, args.label, *algs_to_run)
         write_entry(writer, BATCH, a, FIELDNAMES)
 
         count += 1

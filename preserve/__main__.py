@@ -146,6 +146,13 @@ def main():
         action='store'
         )
 
+    inv_parser.add_argument(
+        '-l', '--label',
+        help='The label for the drive',
+        action='store',
+        default=None
+    )
+
     inv_parser.set_defaults(func=inventory)
 
     # parser for the "compare" sub-command

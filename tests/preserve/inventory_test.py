@@ -18,26 +18,32 @@ def test_inventory_stdout(capsys, tmp_path):
     temp_file_path = tmp_path / subdirectory
 
     temp_file = create_temp_file(temp_file_path, filename, "Test File1234")
-    expected = generate_expected_values(temp_file)
+    expected_rel_path = os.path.join(subdirectory, filename)
+    expected = generate_expected_values(temp_file, expected_rel_path)
 
     batch = "TEST_BATCH"
-    inventory_args = argparse.Namespace(batch=batch, outfile=None, existing=None, path=str(tmp_path), algorithms=None)
+    inventory_args = argparse.Namespace(batch=batch,
+                                        outfile=None,
+                                        existing=None,
+                                        path=str(tmp_path),
+                                        algorithms=None,
+                                        label='test')
     inventory(inventory_args)
 
     captured = capsys.readouterr()
 
-    expected_rel_path = os.path.join(subdirectory, filename)
-    expected_header = 'BATCH,PATH,DIRECTORY,RELPATH,FILENAME,EXTENSION,BYTES,MTIME,MODDATE,MD5,ETAG,SHA1,SHA256'
+    expected_header = 'BATCH,PATH,DIRECTORY,RELPATH,FILENAME,EXTENSION,BYTES,MTIME,MODDATE,MD5,ETAG,SHA1,SHA256,' +\
+                      'STORAGEPROVIDER,STORAGELOCATION'
     expected_file_line = f"{batch},{expected['path']},{expected['directory']},{expected_rel_path}," +\
                          f"{expected['filename']},{expected['extension']},{expected['bytes']},{expected['mtime']}," +\
                          f"{expected['moddate']},{expected['md5']},{expected['etag']},{expected['sha1']}," +\
-                         f"{expected['sha256']}"
+                         f"{expected['sha256']},{expected['storageprovider']},{expected['storagelocation']}"
     stdout_lines = captured.out.split(csv.Dialect.lineterminator)
     assert stdout_lines[0] == expected_header
     assert stdout_lines[1] == expected_file_line
 
 
-def generate_expected_values(temp_file):
+def generate_expected_values(temp_file, relpath):
     '''
     Generates the expected values for the given file
     '''
@@ -55,7 +61,9 @@ def generate_expected_values(temp_file):
         "md5": hashes['md5'],
         "etag": hashes['md5'],
         "sha1":  hashes['sha1'],
-        "sha256":  hashes['sha256']
+        "sha256":  hashes['sha256'],
+        "storageprovider": 'HDD',
+        "storagelocation": f'test:{relpath}',
     }
 
     return expected_values

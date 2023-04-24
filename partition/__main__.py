@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
 
-from .classes import FileSet
-from .exceptions import ConfigError, DuplicateFileError, ClobberingFileError
-from preserve.utils import header
-
 import argparse
 import csv
 import logging
@@ -12,14 +8,13 @@ import shutil
 import sys
 from pathlib import Path
 
-
-logging.basicConfig(format='%(message)s',
-                    level="INFO")
-
 from preserve.utils import header
 
 from .classes import FileSet
-from .exceptions import ConfigError, DuplicateFileError
+from .exceptions import ClobberingFileError, ConfigError, DuplicateFileError
+
+logging.basicConfig(format='%(message)s',
+                    level="INFO")
 
 PARTITIONING_PATTERN = r"^([a-z]+?)-(\d+?)[-_][^.]+?\.\S+?$"
 
@@ -151,7 +146,7 @@ def main():
                     shutil.move(source, destination)
 
             relpaths.append((source, destination))
-        
+
         logging.info("Partitioning complete.\n")
 
         """ (8) Record results """

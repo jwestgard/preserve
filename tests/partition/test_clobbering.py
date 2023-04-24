@@ -1,5 +1,6 @@
 from os.path import isfile
 
+
 def test_clobbering(tmp_path):
     (tmp_path / 'exdir').mkdir()
     (tmp_path / 'exdir/example').touch()
