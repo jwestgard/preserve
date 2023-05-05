@@ -94,6 +94,19 @@ def write_relpaths(relpaths=None, file=sys.stdout):
         csv_writer.writerow(row)
 
 
+def file_size(bytes: int) -> str:
+    if bytes >= 2**40:
+        return f"{round(bytes/2**40, 2)} TiB"
+    elif bytes >= 2**30:
+        return f"{round(bytes/2**30, 2)} GiB"
+    elif bytes >= 2**20:
+        return f"{round(bytes/2**20, 2)} MiB"
+    elif bytes >= 2**10:
+        return f"{round(bytes/2**10, 2)} KiB"
+    else:
+        return f"{round(bytes/2, 2)} Bytes"
+
+
 def main():
 
     try:
