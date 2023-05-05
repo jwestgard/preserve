@@ -27,19 +27,160 @@ python setup.py install
 
 If the virtual environment was already setup, just the last two lines are sufficient.
 
+## Preserve
+
+### Subcomands
+
+```bash
+❯ preserve -h
+usage: preserve [-h] [-v] {ann,bc,bck,comp,inv,ver} ...
+
+Digital preservation utilities.
+
+options:
+  -h, --help            show this help message and exit
+  -v, --version         Print version number and exit
+
+subcommands:
+  valid subcommands
+
+  {ann,bc,bck,comp,inv,ver}
+                        -h additional help
+    annotate (ann)      Fill in missing inventory info by examining the filesystem
+    bytecount (bc)      Count files and sizes in bytes
+    bagcheck (bck)      Compare an inventory file against a bagit bag
+    compare (comp)      Compare two or more inventories
+    inventory (inv)     Create inventory of files with checksums
+    verify (ver)        Verify two sets of files
+```
+
+```bash
+❯ preserve ann -h
+usage: preserve annotate [-h] [-i INVENTORY] [-o OUTPUT] [-r ROOT]
+
+Supplements an inventory CSV by scanning disk for files.
+
+options:
+  -h, --help            show this help message and exit
+  -i INVENTORY, --inventory INVENTORY
+                        Inventory CSV to annotate
+  -o OUTPUT, --output OUTPUT
+                        Output file to write
+  -r ROOT, --root ROOT  Filesystem location to examine
+```
+
+```bash
+❯ preserve bc -h
+usage: preserve bytecount [-h] [-r] [-H] path
+
+Count files by type and sum bytes.
+
+positional arguments:
+  path             path to search
+
+options:
+  -h, --help       show this help message and exit
+  -r, --recursive  Recurse through subdirectories
+  -H, --human      Human-readable size
+```
+
+```bash
+❯ preserve bck -h
+usage: preserve bagcheck [-h] [-i INVENTORY] [-b BAG]
+
+Checks relpath & checksum against bag manifest.
+
+options:
+  -h, --help            show this help message and exit
+  -i INVENTORY, --inventory INVENTORY
+                        Inventory CSV to compare
+  -b BAG, --bag BAG     Path to BagIt bag
+```
+
+```bash
+❯ preserve comp -h
+usage: preserve compare [-h] [-r] first other [other ...]
+
+Compare contents of file inventories.
+
+positional arguments:
+  first          first file
+  other          one or more files to compare
+
+options:
+  -h, --help     show this help message and exit
+  -r, --relpath  compare by relative paths
+```
+
+```bash
+❯ preserve inv -h
+usage: preserve inventory [-h] -b BATCH [-o OUTFILE] [-e EXISTING] [-a ALGORITHMS] [-l LABEL] path
+
+Create dirlisting with file metadata.
+
+positional arguments:
+  path                  path to search
+
+options:
+  -h, --help            show this help message and exit
+  -b BATCH, --batch BATCH
+                        the name of the batch
+  -o OUTFILE, --outfile OUTFILE
+                        path to (new) output file
+  -e EXISTING, --existing EXISTING
+                        path to (existing) output file
+  -a ALGORITHMS, --algorithms ALGORITHMS
+                        hash algorithms to run
+  -l LABEL, --label LABEL
+                        The label for the drive
+```
+
+```bash
+❯ preserve ver -h
+usage: preserve verify [-h] [-c] [-r] [-f] first second
+
+Verify checksums, relpaths, filenames.
+
+positional arguments:
+  first            first file or path
+  second           second file or path
+
+options:
+  -h, --help       show this help message and exit
+  -c, --checksums  Verify files by checksum
+  -r, --relpaths   Verify files by relative path
+  -f, --filenames  Verify files by filename
+```
+
+## Partition
+
 ### Subcommands
 
 ```bash
-preserve bytecount [path]
-preserve inventory [path] (-o OUTFILE) (-e EXISTING)
-preserve compare [file1] [file2] ...
-preserve verify [file1|path1] [file2|path2]
-```
+❯ partition -h
 
-Or, for a full list of options:
+==================
+|                |
+| Partition Tool |
+|                |
+==================
 
-```bash
-preserve -h
+
+usage: partition [-h] [-m {copy,move,dryrun}] [-o OUTPUT] [-v] source destination
+
+Partition a tree of files based on various schemes
+
+positional arguments:
+  source                Root directory to be partitioned
+  destination           Output directory (if exists, must be empty)
+
+options:
+  -h, --help            show this help message and exit
+  -m {copy,move,dryrun}, --mode {copy,move,dryrun}
+                        Dryrun, move, or copy files to destination
+  -o OUTPUT, --output OUTPUT
+                        Path to csv file
+  -v, --version         Print version number and exit
 ```
 
 ## Development Setup
