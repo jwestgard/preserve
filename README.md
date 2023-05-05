@@ -32,7 +32,7 @@ If the virtual environment was already setup, just the last two lines are suffic
 ### Subcomands
 
 ```bash
-❯ preserve -h
+$ preserve -h
 usage: preserve [-h] [-v] {ann,bc,bck,comp,inv,ver} ...
 
 Digital preservation utilities.
@@ -55,7 +55,7 @@ subcommands:
 ```
 
 ```bash
-❯ preserve ann -h
+$ preserve ann -h
 usage: preserve annotate [-h] [-i INVENTORY] [-o OUTPUT] [-r ROOT]
 
 Supplements an inventory CSV by scanning disk for files.
@@ -70,7 +70,7 @@ options:
 ```
 
 ```bash
-❯ preserve bc -h
+$ preserve bc -h
 usage: preserve bytecount [-h] [-r] [-H] path
 
 Count files by type and sum bytes.
@@ -85,7 +85,7 @@ options:
 ```
 
 ```bash
-❯ preserve bck -h
+$ preserve bck -h
 usage: preserve bagcheck [-h] [-i INVENTORY] [-b BAG]
 
 Checks relpath & checksum against bag manifest.
@@ -98,7 +98,7 @@ options:
 ```
 
 ```bash
-❯ preserve comp -h
+$ preserve comp -h
 usage: preserve compare [-h] [-r] first other [other ...]
 
 Compare contents of file inventories.
@@ -113,7 +113,7 @@ options:
 ```
 
 ```bash
-❯ preserve inv -h
+$ preserve inv -h
 usage: preserve inventory [-h] -b BATCH [-o OUTFILE] [-e EXISTING] [-a ALGORITHMS] [-l LABEL] path
 
 Create dirlisting with file metadata.
@@ -136,7 +136,7 @@ options:
 ```
 
 ```bash
-❯ preserve ver -h
+$ preserve ver -h
 usage: preserve verify [-h] [-c] [-r] [-f] first second
 
 Verify checksums, relpaths, filenames.
@@ -157,7 +157,7 @@ options:
 ### Subcommands
 
 ```bash
-❯ partition -h
+$ partition -h
 
 ==================
 |                |
