@@ -26,7 +26,7 @@ def main():
         title='subcommands',
         description='valid subcommands',
         help='-h additional help',
-        metavar='{bc,inv,comp,ver}',
+        metavar='{ann,bc,bck,comp,inv,ver}',
         dest='cmd'
         )
 
@@ -66,27 +66,6 @@ def main():
 
     annotate_parser.set_defaults(func=annotate)
 
-    # parser for the "bagcheck" sub-command
-    bagcheck_parser = subparsers.add_parser(
-        'bagcheck', aliases=['bck'],
-        help='Compare an inventory file against a bagit bag',
-        description='Checks relpath & checksum against bag manifest.'
-        )
-
-    bagcheck_parser.add_argument(
-        '-i', '--inventory',
-        help='Inventory CSV to compare',
-        action='store'
-        )
-
-    bagcheck_parser.add_argument(
-        '-b', '--bag',
-        help='Path to BagIt bag',
-        action='store'
-        )
-
-    bagcheck_parser.set_defaults(func=bagcheck)
-
     # parser for the "bytecount" sub-command
     bc_parser = subparsers.add_parser(
         'bytecount', aliases=['bc'],
@@ -111,6 +90,48 @@ def main():
         )
 
     bc_parser.set_defaults(func=bytecount)
+
+    # parser for the "bagcheck" sub-command
+    bagcheck_parser = subparsers.add_parser(
+        'bagcheck', aliases=['bck'],
+        help='Compare an inventory file against a bagit bag',
+        description='Checks relpath & checksum against bag manifest.'
+        )
+
+    bagcheck_parser.add_argument(
+        '-i', '--inventory',
+        help='Inventory CSV to compare',
+        action='store'
+        )
+
+    bagcheck_parser.add_argument(
+        '-b', '--bag',
+        help='Path to BagIt bag',
+        action='store'
+        )
+
+    bagcheck_parser.set_defaults(func=bagcheck)
+
+    # parser for the "compare" sub-command
+    comp_parser = subparsers.add_parser(
+        'compare', aliases=['comp'],
+        help='Compare two or more inventories',
+        description='Compare contents of file inventories.'
+        )
+
+    comp_parser.add_argument(
+        '-r', '--relpath',
+        help='compare by relative paths',
+        action='store_true'
+        )
+
+    comp_parser.add_argument('first', help='first file')
+    comp_parser.add_argument(
+        'other', nargs='+',
+        help='one or more files to compare'
+        )
+
+    comp_parser.set_defaults(func=compare)
 
     # parser for the "inventory" sub-command
     inv_parser = subparsers.add_parser(
@@ -154,27 +175,6 @@ def main():
     )
 
     inv_parser.set_defaults(func=inventory)
-
-    # parser for the "compare" sub-command
-    comp_parser = subparsers.add_parser(
-        'compare', aliases=['comp'],
-        help='Compare two or more inventories',
-        description='Compare contents of file inventories.'
-        )
-
-    comp_parser.add_argument(
-        '-r', '--relpath',
-        help='compare by relative paths',
-        action='store_true'
-        )
-
-    comp_parser.add_argument('first', help='first file')
-    comp_parser.add_argument(
-        'other', nargs='+',
-        help='one or more files to compare'
-        )
-
-    comp_parser.set_defaults(func=compare)
 
     # parser for the "verify" sub-command
     ver_parser = subparsers.add_parser(
