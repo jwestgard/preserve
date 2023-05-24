@@ -17,8 +17,9 @@ def inventory(args):
        a specified path.'''
 
     FIELDNAMES = ['BATCH', 'PATH', 'DIRECTORY', 'RELPATH', 'FILENAME', 'EXTENSION',
-                  'BYTES', 'MTIME', 'MODDATE', 'MD5', 'ETAG', 'SHA1', 'SHA256', 'STORAGEPROVIDER', 'STORAGELOCATION'
-                  ]
+                  'BYTES', 'MTIME', 'MODDATE', 'MD5', 'ETAG', 'SHA1', 'SHA256',
+                  'STORAGEPROVIDER', 'STORAGELOCATION']
+
     BATCH = args.batch
 
     # Handle errors in the user-supplied paths
@@ -42,12 +43,6 @@ def inventory(args):
                 )
     else:
         OUTFILE = None
-
-    # Handle errors with label not provided
-    if args.label is None:
-        return (
-            "ERROR: Label was not provided"
-        )
 
     # Ensure that the path to be checked is valid
     if os.path.exists(args.path):
