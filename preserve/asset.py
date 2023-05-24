@@ -129,7 +129,7 @@ class Asset():
                 'bytes':     os.path.getsize(path),
                 'extension': os.path.splitext(path)[1].lstrip('.').upper(),
                 }
-            
+
             values['moddate'] = dt.fromtimestamp(values['mtime']).strftime('%Y-%m-%dT%H:%M:%S')
             for algorithm, hash in calculate_hashes(path, args).items():
                 values[algorithm] = hash
@@ -137,7 +137,7 @@ class Asset():
                 values['etag'] = values['md5']
             else:
                 values['etag'] = calculate_etag(path, CHUNK_SIZE)
-            
+
             if label is not None:
                 values['storagelocation'] = f'{label}:{relpath}'
                 values['storageprovider'] = 'HDD'
