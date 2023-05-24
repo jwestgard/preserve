@@ -128,16 +128,18 @@ class Asset():
                 'filename':  filename,
                 'bytes':     os.path.getsize(path),
                 'extension': os.path.splitext(path)[1].lstrip('.').upper(),
-                'storagelocation': f'{label}:{relpath}',
-                'storageprovider': 'HDD',
                 }
-            values['moddate'] = dt.fromtimestamp(values['mtime']).strftime(
-                                                           '%Y-%m-%dT%H:%M:%S')
+            
+            values['moddate'] = dt.fromtimestamp(values['mtime']).strftime('%Y-%m-%dT%H:%M:%S')
             for algorithm, hash in calculate_hashes(path, args).items():
                 values[algorithm] = hash
             if values['md5'] and (values['bytes'] <= CHUNK_SIZE):
                 values['etag'] = values['md5']
             else:
                 values['etag'] = calculate_etag(path, CHUNK_SIZE)
+            
+            if label is not None:
+                values['storagelocation'] = f'{label}:{relpath}'
+                values['storageprovider'] = 'HDD'
 
         return cls(**values)
