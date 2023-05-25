@@ -64,7 +64,7 @@ def list_files(dir_path):
     return result
 
 
-def get_inventory(path, label):
+def get_inventory(path, label, mount):
     '''Given a path to a file or directory, return list of inventory metadata
        based on reading the inventory, or scanning the directory's files.'''
     if os.path.isfile(path):
@@ -83,7 +83,7 @@ def get_inventory(path, label):
         result = []
         for n, f in enumerate(list_files(path)):
             print("  => found {0} files.".format(n+1), end='\r')
-            a = Asset.from_filesystem(f, path, label)
+            a = Asset.from_filesystem(f, path, label, mount)
             result.append(a)
         print()
         return result

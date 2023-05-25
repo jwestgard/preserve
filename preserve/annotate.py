@@ -37,7 +37,7 @@ def examine_matching_file(filename, root, row, file_index):
     '''Locate file match in the index and annotate the spreadsheet row'''
     updated = row
     for path in file_index.get(filename, []):
-        asset = Asset().from_filesystem(path, root, label=None, *ALGS)
+        asset = Asset().from_filesystem(path, root, label=None, mount_path=None, *ALGS)
         for algorithm in ALGS:
             storedhash = row[algorithm.upper()]
             calculated = getattr(asset, algorithm)
