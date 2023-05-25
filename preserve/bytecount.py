@@ -11,9 +11,9 @@ def bytecount(args):
        bytes and number of files broken down by extension.'''
     PATH = args.path
     print("Loading data from specified path...")
-    all_files = get_inventory(PATH)
+    all_files = get_inventory(PATH, label=None, mount=None)
     if not all_files:
-        sys.exit(
+        return(
             "ERROR: Could not read inventory data from the specified path.\n"
             )
 
