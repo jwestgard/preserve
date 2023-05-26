@@ -13,7 +13,7 @@ def bytecount(args):
     print("Loading data from specified path...")
     all_files = get_inventory(PATH, label=None, mount=None)
     if not all_files:
-        return(
+        return (
             "ERROR: Could not read inventory data from the specified path.\n"
             )
 

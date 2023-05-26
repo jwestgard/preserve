@@ -51,7 +51,7 @@ def inventory(args):
         return (
             "ERROR: The specified search path does not exist.\n"
             )
-    
+
     if (args.label is not None and args.mount is None) or (args.label is None and args.mount is not None):
         return (
             "ERROR: The label and mount flags must be provided together.\n"
