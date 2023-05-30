@@ -52,6 +52,11 @@ def inventory(args):
             "ERROR: The specified search path does not exist.\n"
             )
 
+    if (args.label is not None and args.mount is None) or (args.label is None and args.mount is not None):
+        return (
+            "ERROR: The label and mount flags must be provided together.\n"
+        )
+
     # Get a list of all files in the search path.
     all_files = list_files(PATH)
     total = len(all_files)
@@ -63,7 +68,7 @@ def inventory(args):
         sys.stderr.write("Writing to file: {0}\n".format(OUTFILE))
         # If the output file exists, read it and resume the job.
         if os.path.isfile(OUTFILE):
-            existing_entries = get_inventory(OUTFILE, args.label)
+            existing_entries = get_inventory(OUTFILE, args.label, args.mount)
             all_keys = set().union(
                 *(e.__dict__.keys() for e in existing_entries)
                 )
@@ -121,7 +126,7 @@ def inventory(args):
         algs_to_run = known_algs
     # Check each (remaining) file and generate metadata
     for f in files_to_check:
-        a = Asset().from_filesystem(f, PATH, args.label, *algs_to_run)
+        a = Asset().from_filesystem(f, PATH, args.label, args.mount, *algs_to_run)
         write_entry(writer, BATCH, a, FIELDNAMES)
 
         count += 1

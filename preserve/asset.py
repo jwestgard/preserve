@@ -108,7 +108,7 @@ class Asset():
         return cls(**values)
 
     @classmethod
-    def from_filesystem(cls, path, base_path, label, *args):
+    def from_filesystem(cls, path, base_path, label, mount_path, *args):
         '''Alternate constructor for reading attributes from file'''
         if not os.path.isfile(path):
             raise TypeError
@@ -139,7 +139,7 @@ class Asset():
                 values['etag'] = calculate_etag(path, CHUNK_SIZE)
 
             if label is not None:
-                values['storagelocation'] = f'{label}:{relpath}'
+                values['storagelocation'] = f'{label}:{os.path.relpath(path, mount_path)}'
                 values['storageprovider'] = 'HDD'
 
         return cls(**values)

@@ -172,7 +172,14 @@ def main():
         help='The label for the drive',
         action='store',
         default=None
-    )
+        )
+
+    inv_parser.add_argument(
+        '-m', '--mount',
+        help='Path where the drive was mounted locally',
+        action='store',
+        default=None
+        )
 
     inv_parser.set_defaults(func=inventory)
 

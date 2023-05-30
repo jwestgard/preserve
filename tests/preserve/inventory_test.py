@@ -19,7 +19,7 @@ def test_inventory_stdout(capsys, tmp_path):
 
     temp_file = create_temp_file(temp_file_path, filename, "Test File1234")
     expected_rel_path = os.path.join(subdirectory, filename)
-    expected = generate_expected_values(temp_file, expected_rel_path)
+    expected = generate_expected_values(temp_file)
 
     batch = "TEST_BATCH"
     inventory_args = argparse.Namespace(batch=batch,
@@ -27,7 +27,8 @@ def test_inventory_stdout(capsys, tmp_path):
                                         existing=None,
                                         path=str(tmp_path),
                                         algorithms=None,
-                                        label='test')
+                                        label=None,
+                                        mount=None)
     inventory(inventory_args)
 
     captured = capsys.readouterr()
@@ -43,7 +44,7 @@ def test_inventory_stdout(capsys, tmp_path):
     assert stdout_lines[1] == expected_file_line
 
 
-def generate_expected_values(temp_file, relpath):
+def generate_expected_values(temp_file):
     '''
     Generates the expected values for the given file
     '''
@@ -62,8 +63,8 @@ def generate_expected_values(temp_file, relpath):
         "etag": hashes['md5'],
         "sha1":  hashes['sha1'],
         "sha256":  hashes['sha256'],
-        "storageprovider": 'HDD',
-        "storagelocation": f'test:{relpath}',
+        "storageprovider": '',
+        "storagelocation": '',
     }
 
     return expected_values
