@@ -22,7 +22,8 @@ class Manifest(list):
             self.read_from_file()
             self.root = os.path.commonpath([a.path for a in self]) + '/'
         for asset in self:
-            asset.relpath = re.sub(self.root, '', asset.path)
+            if not asset.relpath or asset.relpath == '':
+                asset.relpath = re.sub(self.root, '', asset.path)
 
     def read_from_file(self):
         '''Examine input file and call appropriate parser'''
@@ -44,7 +45,9 @@ class Manifest(list):
     def read_from_dir(self):
         '''Read files on disk and populate manifest'''
         for f in list_files(self.path):
-            self.append(Asset().from_filesystem(f, self.root, label=None, mount_path=None))
+            self.append(
+                Asset().from_filesystem(f, self.root, label=None, mount_path=None)
+                )
 
     def parse_tsm(self):
         '''Data parser function for reading data from Tivoli
