@@ -14,7 +14,7 @@ Clone this repository and do:
 ```bash
 $ pyenv local $(cat .python-version)
 $ python -m venv .venv --prompt preserve
-$ source .venv/bin/active
+$ source .venv/bin/activate
 $ python setup.py install
 ```
 
